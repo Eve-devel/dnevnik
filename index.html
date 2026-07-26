@@ -1,0 +1,3207 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Дневник симптомов ЖКТ</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#1F5C73">
+<link rel="icon" href="./icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; }
+  img { max-width: 100%; }
+</style>
+</head>
+<body>
+<style>
+  :root {
+    --bg: #F5F7F8;
+    --surface: #FFFFFF;
+    --surface-2: #EDF1F3;
+    --ink: #151C22;
+    --ink-soft: #56636E;
+    --ink-faint: #8996A2;
+    --rule: #DCE2E7;
+    --rule-strong: #C3CCD3;
+    --accent: #1F5C73;
+    --accent-soft: #E3EDF1;
+    --mark: #A56A24;
+    --mark-soft: #F7EBDA;
+    --on-mark: #FFFFFF;
+    --on-accent: #FFFFFF;
+    --good: #3D7A56;
+    --warn: #A9762A;
+    --bad: #A94429;
+    --bad-soft: #F8E6E1;
+    --shadow: 0 1px 2px rgba(21, 28, 34, .06), 0 6px 16px rgba(21, 28, 34, .05);
+
+    --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-data: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+    --radius: 6px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0F1419;
+      --surface: #161D24;
+      --surface-2: #1D262E;
+      --ink: #E3E9ED;
+      --ink-soft: #99A6B2;
+      --ink-faint: #697786;
+      --rule: #253039;
+      --rule-strong: #35434F;
+      --accent: #59A3BC;
+      --accent-soft: #17303B;
+      --mark: #D3944A;
+      --mark-soft: #2E2416;
+      --on-mark: #14100A;
+      --on-accent: #08131A;
+      --good: #5D9E77;
+      --warn: #C4914A;
+      --bad: #C46A50;
+      --bad-soft: #33201B;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 6px 16px rgba(0, 0, 0, .25);
+    }
+  }
+
+  :root[data-theme="light"] {
+    --bg: #F5F7F8;
+    --surface: #FFFFFF;
+    --surface-2: #EDF1F3;
+    --ink: #151C22;
+    --ink-soft: #56636E;
+    --ink-faint: #8996A2;
+    --rule: #DCE2E7;
+    --rule-strong: #C3CCD3;
+    --accent: #1F5C73;
+    --accent-soft: #E3EDF1;
+    --mark: #A56A24;
+    --mark-soft: #F7EBDA;
+    --on-mark: #FFFFFF;
+    --on-accent: #FFFFFF;
+    --good: #3D7A56;
+    --warn: #A9762A;
+    --bad: #A94429;
+    --bad-soft: #F8E6E1;
+    --shadow: 0 1px 2px rgba(21, 28, 34, .06), 0 6px 16px rgba(21, 28, 34, .05);
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0F1419;
+    --surface: #161D24;
+    --surface-2: #1D262E;
+    --ink: #E3E9ED;
+    --ink-soft: #99A6B2;
+    --ink-faint: #697786;
+    --rule: #253039;
+    --rule-strong: #35434F;
+    --accent: #59A3BC;
+    --accent-soft: #17303B;
+    --mark: #D3944A;
+    --mark-soft: #2E2416;
+    --on-mark: #14100A;
+    --on-accent: #08131A;
+    --good: #5D9E77;
+    --warn: #C4914A;
+    --bad: #C46A50;
+    --bad-soft: #33201B;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 6px 16px rgba(0, 0, 0, .25);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .wrap {
+    max-width: 580px;
+    margin: 0 auto;
+    padding: 0 14px calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* ---------- header ---------- */
+
+  .masthead {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--bg);
+    border-bottom: 1px solid var(--rule);
+    padding: 14px 0 10px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .masthead h1 {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+
+  .masthead .sub {
+    margin-left: auto;
+    font-family: var(--font-data);
+    font-size: 0.6875rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .theme-btn {
+    flex: 0 0 auto;
+    width: 34px; height: 34px;
+    align-self: center;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--rule-strong);
+    background: var(--surface);
+    color: var(--ink-soft);
+    border-radius: 4px;
+    font-size: 0.9375rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ---------- sections ---------- */
+
+  section.block {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    margin-top: 12px;
+    overflow: hidden;
+  }
+
+  .block-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--surface-2);
+  }
+
+  .block-head h2 {
+    margin: 0;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .block-head .tag {
+    margin-left: auto;
+    font-family: var(--font-data);
+    font-size: 0.625rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+
+  .block-body { padding: 4px 14px 14px; }
+
+  .field { padding-top: 14px; }
+  .field + .field { border-top: 1px solid var(--rule); margin-top: 14px; }
+
+  .field-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .field-label .name { font-size: 0.875rem; font-weight: 550; }
+  .field-label .hint { font-size: 0.75rem; color: var(--ink-faint); }
+
+  .field-label .val {
+    font-family: var(--font-data);
+    font-size: 0.9375rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--mark);
+    font-weight: 600;
+    min-width: 2ch;
+    text-align: right;
+  }
+  .field-label .val.empty { color: var(--ink-faint); font-weight: 400; }
+
+  /* ---------- 0-10 scale ---------- */
+
+  .scale { display: flex; gap: 3px; }
+
+  .scale button {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 42px;
+    padding: 0;
+    border: 1px solid var(--rule-strong);
+    background: var(--surface);
+    color: var(--ink-soft);
+    font-family: var(--font-data);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color .12s ease, color .12s ease, border-color .12s ease;
+  }
+  .scale button:hover { border-color: var(--mark); }
+  .scale button[aria-pressed="true"] {
+    background: var(--mark);
+    border-color: var(--mark);
+    color: var(--on-mark);
+    font-weight: 700;
+  }
+  .scale.compact button { height: 34px; font-size: 0.75rem; }
+
+  /* ---------- chips ---------- */
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .chips button {
+    flex: 1 1 auto;
+    min-height: 42px;
+    padding: 8px 12px;
+    border: 1px solid var(--rule-strong);
+    background: var(--surface);
+    color: var(--ink-soft);
+    font-family: var(--font-ui);
+    font-size: 0.8125rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color .12s ease, color .12s ease, border-color .12s ease;
+  }
+  .chips button:hover { border-color: var(--mark); }
+  .chips button[aria-pressed="true"] {
+    background: var(--mark-soft);
+    border-color: var(--mark);
+    color: var(--mark);
+    font-weight: 600;
+  }
+  .chips.phase button[aria-pressed="true"] {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .chips button.bristol-c[aria-pressed="true"] { background: var(--mark-soft); border-color: var(--warn); color: var(--warn); }
+  .chips button.bristol-n[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--good); color: var(--good); }
+  .chips button.bristol-l[aria-pressed="true"] { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+
+  .bristol-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 6px; }
+  .bristol-grid button { text-align: left; line-height: 1.25; }
+  .bristol-grid b { font-family: var(--font-data); margin-right: 6px; }
+
+  /* ---------- episode logger ---------- */
+
+  .sym-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    padding-top: 12px;
+  }
+
+  .sym-grid button {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 50px;
+    padding: 8px 11px;
+    border: 1px solid var(--rule-strong);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 0.8125rem;
+    font-weight: 550;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: left;
+    line-height: 1.2;
+    transition: background-color .12s ease, border-color .12s ease;
+  }
+  .sym-grid button:hover { border-color: var(--mark); background: var(--mark-soft); }
+  .sym-grid button:active { background: var(--mark); color: var(--on-mark); }
+
+  .sym-grid button .plus {
+    flex: 0 0 auto;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--mark-soft);
+    color: var(--mark);
+    font-family: var(--font-data);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    line-height: 1;
+  }
+  .sym-grid button .n {
+    margin-left: auto;
+    font-family: var(--font-data);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--mark);
+    font-weight: 700;
+  }
+  .sym-grid button .n:empty { display: none; }
+
+  .sym-grid.state button:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .sym-grid.state button:active { background: var(--accent); color: var(--on-accent); }
+  .sym-grid.state button .plus { background: var(--accent-soft); color: var(--accent); }
+  .sym-grid.state button .n { color: var(--accent); }
+  .sym-grid.state button.good .plus { background: var(--surface-2); color: var(--good); }
+  .sym-grid.state button.good .n { color: var(--good); }
+  .sym-grid.state button.good:hover { border-color: var(--good); background: none; }
+
+  .grp-label {
+    display: block;
+    margin: 16px 0 2px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .grp-label:first-child { margin-top: 10px; }
+
+  .sym-grid button.attack { grid-column: 1 / -1; border-color: var(--rule-strong); }
+  .sym-grid button.attack .plus { background: var(--bad-soft); color: var(--bad); }
+  .sym-grid button.attack .n { color: var(--bad); }
+  .sym-grid button.attack:hover { border-color: var(--bad); background: var(--bad-soft); }
+  .sym-grid button.attack:active { background: var(--bad); color: #fff; }
+
+  .ep-list { margin-top: 14px; border-top: 1px solid var(--rule); }
+  .ep-empty {
+    padding: 16px 0 4px;
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: 0.8125rem;
+  }
+
+  .ep {
+    border-bottom: 1px solid var(--rule);
+  }
+  .ep:last-child { border-bottom: none; }
+
+  .ep-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px 2px;
+    background: none;
+    border: none;
+    font-family: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+  }
+  .ep-main:hover { background: var(--surface-2); }
+
+  .ep-main .t {
+    font-family: var(--font-data);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-soft);
+    flex: 0 0 auto;
+    width: 5ch;
+  }
+  .ep-main .dot {
+    flex: 0 0 auto;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--mark);
+  }
+  .ep-main.is-attack .dot { background: var(--bad); }
+  .ep-main .s { flex: 1 1 auto; font-size: 0.875rem; }
+  .ep-main.is-attack .s { color: var(--bad); font-weight: 600; }
+  .ep-main .i {
+    flex: 0 0 auto;
+    font-family: var(--font-data);
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .ep-main .chev { flex: 0 0 auto; color: var(--ink-faint); font-size: 0.75rem; }
+
+  .ep-edit { padding: 4px 2px 14px; }
+  .ep-edit-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .ep-edit-row label {
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    flex: 0 0 auto;
+    width: 6.5ch;
+  }
+  .ep-edit-row input[type="time"] { flex: 0 0 auto; width: auto; }
+  .ep-edit .lbl {
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    display: block;
+    margin-bottom: 5px;
+  }
+  .ep-del {
+    margin-top: 10px;
+    width: 100%;
+    padding: 9px;
+    border: 1px solid var(--rule-strong);
+    background: none;
+    color: var(--ink-faint);
+    border-radius: 4px;
+    font-family: var(--font-ui);
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+  .ep-del:hover { border-color: var(--bad); color: var(--bad); }
+
+  /* ---------- inputs ---------- */
+
+  input[type="date"], input[type="time"], input[type="number"], textarea {
+    width: 100%;
+    padding: 10px 11px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 0.9375rem;
+  }
+  input[type="date"], input[type="time"], input[type="number"] {
+    font-family: var(--font-data);
+    font-variant-numeric: tabular-nums;
+  }
+  textarea { resize: vertical; min-height: 68px; line-height: 1.45; }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* ---------- date bar ---------- */
+
+  .datebar { display: flex; gap: 8px; align-items: stretch; margin-top: 12px; }
+  .datebar input { flex: 1 1 auto; }
+  .datebar button {
+    flex: 0 0 auto;
+    padding: 0 14px;
+    border: 1px solid var(--rule-strong);
+    background: var(--surface);
+    color: var(--ink-soft);
+    border-radius: 4px;
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+  .datebar button:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ---------- save ---------- */
+
+  .save {
+    width: 100%;
+    margin-top: 14px;
+    padding: 15px;
+    border: none;
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: var(--on-accent);
+    font-family: var(--font-ui);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .save:hover { filter: brightness(1.08); }
+
+  .save-note { margin: 8px 0 0; text-align: center; font-size: 0.75rem; color: var(--ink-faint); }
+
+  /* ---------- nav ---------- */
+
+  nav.tabs {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 30;
+    display: flex;
+    background: var(--surface);
+    border-top: 1px solid var(--rule);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  nav.tabs button {
+    flex: 1;
+    padding: 12px 4px 13px;
+    border: none;
+    background: none;
+    color: var(--ink-faint);
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    font-weight: 550;
+    cursor: pointer;
+    border-top: 2px solid transparent;
+    margin-top: -1px;
+  }
+  nav.tabs button[aria-current="true"] { color: var(--accent); border-top-color: var(--accent); }
+  nav.tabs .count {
+    display: block;
+    font-family: var(--font-data);
+    font-size: 0.6875rem;
+    color: var(--ink-faint);
+    font-weight: 400;
+  }
+
+  /* ---------- history ---------- */
+
+  .hrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    background: none;
+    border-left: 0; border-right: 0; border-top: 0;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    color: inherit;
+  }
+  .hrow:last-child { border-bottom: none; }
+  .hrow:hover { background: var(--surface-2); }
+  .hrow .d {
+    font-family: var(--font-data);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    width: 5.5ch;
+    flex: 0 0 auto;
+  }
+  .hrow .ph { flex: 0 0 auto; width: 6px; height: 30px; border-radius: 2px; background: var(--rule-strong); }
+  .hrow .ph.before { background: var(--ink-faint); }
+  .hrow .ph.during { background: var(--mark); }
+  .hrow .ph.after  { background: var(--accent); }
+  .hrow .metrics {
+    flex: 1 1 auto;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-family: var(--font-data);
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .hrow .metrics i { font-style: normal; color: var(--ink-faint); }
+  .hrow .flag { color: var(--bad); font-weight: 700; }
+
+  /* ---------- summary ---------- */
+
+  table.cmp { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+  table.cmp th, table.cmp td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--rule);
+    text-align: right;
+  }
+  table.cmp th:first-child, table.cmp td:first-child { text-align: left; }
+  table.cmp thead th {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+    font-weight: 600;
+  }
+  table.cmp td.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+  table.cmp tr.grp td {
+    background: var(--surface-2);
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+    font-weight: 700;
+    padding: 7px 10px;
+  }
+  table.cmp tr:last-child td { border-bottom: none; }
+  .tbl-scroll { overflow-x: auto; }
+
+  .spark { margin-top: 14px; }
+  .spark + .spark { border-top: 1px solid var(--rule); padding-top: 14px; }
+  .spark-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 0.8125rem; margin-bottom: 6px;
+  }
+  .spark-head .delta { font-family: var(--font-data); font-size: 0.75rem; }
+  .delta.down { color: var(--good); }
+  .delta.up { color: var(--bad); }
+  .delta.flat { color: var(--ink-faint); }
+  .spark svg { display: block; width: 100%; height: 44px; }
+
+  .clock { display: grid; gap: 8px; padding-top: 4px; }
+  .clock-row { display: flex; align-items: center; gap: 10px; font-size: 0.8125rem; }
+  .clock-row .lab { flex: 0 0 auto; width: 10ch; color: var(--ink-soft); }
+  .clock-row .bar-wrap { flex: 1 1 auto; height: 16px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+  .clock-row .bar { height: 100%; background: var(--accent); border-radius: 3px; }
+  .clock-row .bar.night { background: var(--bad); }
+  .clock-row .n {
+    flex: 0 0 auto; width: 3ch; text-align: right;
+    font-family: var(--font-data); font-size: 0.75rem;
+    font-variant-numeric: tabular-nums; color: var(--ink-soft);
+  }
+
+  .legend {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    padding: 10px 14px 0;
+    font-size: 0.6875rem; color: var(--ink-faint);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+
+  .btnrow { display: flex; gap: 8px; flex-wrap: wrap; padding: 14px; }
+  .btnrow button {
+    flex: 1 1 140px;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid var(--accent);
+    background: var(--surface);
+    color: var(--accent);
+    font-family: var(--font-ui);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btnrow button:hover { background: var(--accent-soft); }
+  .btnrow button.danger { border-color: var(--rule-strong); color: var(--ink-faint); }
+  .btnrow button.danger:hover { border-color: var(--bad); color: var(--bad); background: none; }
+
+  pre.export {
+    margin: 0 14px 14px;
+    padding: 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    font-family: var(--font-data);
+    font-size: 0.6875rem;
+    line-height: 1.45;
+    overflow-x: auto;
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre;
+  }
+
+  .empty-state { padding: 28px 16px; text-align: center; color: var(--ink-faint); font-size: 0.875rem; }
+
+  .note {
+    margin: 12px 0 0;
+    padding: 11px 13px;
+    border-left: 2px solid var(--accent);
+    background: var(--surface);
+    border-radius: 0 4px 4px 0;
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+    transform: translate(-50%, 12px);
+    background: var(--ink);
+    color: var(--bg);
+    padding: 10px 18px;
+    border-radius: 100px;
+    font-size: 0.8125rem;
+    font-weight: 550;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+    z-index: 40;
+    box-shadow: var(--shadow);
+  }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+  /* ---------- meals ---------- */
+
+  .meal-add {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 50px;
+    margin-top: 12px;
+    padding: 8px 11px;
+    border: 1px dashed var(--rule-strong);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 0.875rem;
+    font-weight: 550;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .meal-add:hover { border-color: var(--accent); border-style: solid; background: var(--accent-soft); }
+  .meal-add .plus {
+    flex: 0 0 auto;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-family: var(--font-data);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    line-height: 1;
+  }
+  .meal-add .n {
+    margin-left: auto;
+    font-family: var(--font-data);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .meal-add .n:empty { display: none; }
+
+  .ep-main .w {
+    flex: 1 1 auto;
+    font-size: 0.875rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ep-main .w.none { color: var(--ink-faint); }
+  .ep-main .dot.food { background: var(--accent); }
+  .ep-main .dot.med { background: var(--good); }
+  .ep-main .dot.med.miss { background: var(--bad); }
+  .ep-main .w.miss { color: var(--bad); text-decoration: line-through; }
+
+  .meal-add.med .plus { background: var(--surface-2); color: var(--good); }
+  .meal-add.med:hover { border-color: var(--good); background: none; }
+  .meal-add.med .n { color: var(--good); }
+
+  .miss-toggle {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px 11px;
+    border: 1px solid var(--rule-strong);
+    background: var(--surface);
+    color: var(--ink-soft);
+    border-radius: 4px;
+    font-family: var(--font-ui);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    text-align: left;
+  }
+  .miss-toggle .box {
+    flex: 0 0 auto;
+    width: 18px; height: 18px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 3px;
+    display: grid;
+    place-items: center;
+    font-size: 0.75rem;
+    line-height: 1;
+  }
+  .miss-toggle[aria-pressed="true"] { border-color: var(--bad); color: var(--bad); }
+  .miss-toggle[aria-pressed="true"] .box { border-color: var(--bad); background: var(--bad); color: #fff; }
+  .ep-main .q {
+    flex: 0 0 auto;
+    font-family: var(--font-data);
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .qty-amount { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .qty-amount input { flex: 1 1 auto; }
+  .qty-amount .unit { flex: 0 0 auto; font-size: 0.8125rem; color: var(--ink-soft); }
+
+  .ep-edit textarea.what { min-height: 54px; }
+  .ep-edit input[type="text"] {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px 11px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 0.9375rem;
+  }
+
+  /* ---------- backup banner ---------- */
+
+  .banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    padding: 11px 13px;
+    border: 1px solid var(--mark);
+    background: var(--mark-soft);
+    border-radius: var(--radius);
+    font-size: 0.8125rem;
+    line-height: 1.35;
+  }
+  .banner .txt { flex: 1 1 auto; }
+  .banner .txt b { display: block; color: var(--mark); }
+  .banner .txt span { color: var(--ink-soft); }
+  .banner button {
+    flex: 0 0 auto;
+    padding: 10px 13px;
+    border: 1px solid var(--mark);
+    background: var(--mark);
+    color: var(--on-mark);
+    border-radius: 4px;
+    font-family: var(--font-ui);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* ---------- autosave status ---------- */
+
+  .autosave {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin: 16px 0 0;
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+  }
+  .autosave i {
+    flex: 0 0 auto;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--good);
+    display: inline-block;
+  }
+  .autosave.idle i { background: var(--rule-strong); }
+
+  /* ---------- data tab ---------- */
+
+  .kv {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--rule);
+    font-size: 0.8125rem;
+  }
+  .kv:last-child { border-bottom: none; }
+  .kv .k { color: var(--ink-soft); }
+  .kv .v {
+    font-family: var(--font-data);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .kv .v.bad-v { color: var(--bad); font-weight: 700; }
+  .kv .v.ok-v { color: var(--good); }
+
+  .symrow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .symrow:last-child { border-bottom: none; }
+  .symrow .nm { flex: 1 1 auto; font-size: 0.875rem; }
+  .symrow.off .nm { color: var(--ink-faint); text-decoration: line-through; }
+  .symrow .used {
+    flex: 0 0 auto;
+    font-family: var(--font-data);
+    font-size: 0.6875rem;
+    color: var(--ink-faint);
+  }
+  .symrow .ib {
+    flex: 0 0 auto;
+    width: 36px; height: 36px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--rule-strong);
+    background: var(--surface);
+    color: var(--ink-soft);
+    border-radius: 4px;
+    font-family: var(--font-ui);
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+  .symrow .ib:hover { border-color: var(--accent); color: var(--accent); }
+  .symrow .ib.del:hover { border-color: var(--bad); color: var(--bad); }
+  .symrow .ib[disabled] { opacity: .3; cursor: default; }
+  .symrow .ib[disabled]:hover { border-color: var(--rule-strong); color: var(--ink-soft); }
+
+  .addsym { display: flex; gap: 8px; padding-top: 12px; }
+  .addsym input[type="text"] {
+    flex: 1 1 auto;
+    padding: 10px 11px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 0.9375rem;
+  }
+  .addsym button {
+    flex: 0 0 auto;
+    padding: 0 16px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: 4px;
+    font-family: var(--font-ui);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  [hidden] { display: none !important; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <h1>Дневник симптомов ЖКТ</h1>
+    <span class="sub" id="mast-sub"></span>
+    <button type="button" class="theme-btn" id="theme-btn" aria-label="Тема оформления"></button>
+  </header>
+
+  <div class="banner" id="backup-banner" hidden>
+    <span class="txt"><b id="banner-title"></b><span id="banner-sub"></span></span>
+    <button type="button" id="banner-btn">Сохранить</button>
+  </div>
+
+  <!-- ============ ЗАПИСЬ ============ -->
+  <div id="view-entry">
+
+    <div class="datebar">
+      <input type="date" id="date" aria-label="Дата записи">
+      <button type="button" id="btn-today">Сегодня</button>
+    </div>
+
+    <section class="block">
+      <div class="block-head"><h2>Этап</h2><span class="tag" id="phase-tag"></span></div>
+      <div class="block-body">
+        <div class="field" style="padding-top:12px">
+          <div class="chips phase" id="phase" role="group" aria-label="Этап лечения"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head"><h2>Симптомы ЖКТ</h2><span class="tag">отмечайте сразу</span></div>
+      <div class="block-body">
+        <div class="sym-grid" id="sym-grid"></div>
+        <div class="ep-list" id="ep-list"></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head"><h2>Самочувствие</h2><span class="tag">отмечайте сразу</span></div>
+      <div class="block-body">
+        <div class="sym-grid state" id="state-grid"></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head"><h2>Приёмы пищи</h2><span class="tag">еда и перекусы</span></div>
+      <div class="block-body">
+        <button type="button" class="meal-add" id="meal-add">
+          <span class="plus">+</span><span>Добавить приём пищи</span><span class="n" id="meal-n"></span>
+        </button>
+        <div class="ep-list" id="meal-list"></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head"><h2>Лекарства</h2><span class="tag">приёмы и пропуски</span></div>
+      <div class="block-body">
+        <button type="button" class="meal-add med" id="med-add">
+          <span class="plus">+</span><span>Добавить приём лекарства</span><span class="n" id="med-n"></span>
+        </button>
+        <div class="ep-list" id="med-list"></div>
+        <datalist id="drug-names"></datalist>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head"><h2>Ночь и сон</h2><span class="tag">итог за ночь</span></div>
+      <div class="block-body" id="grp-sleep"></div>
+    </section>
+
+    <section class="block">
+      <div class="block-head"><h2>Стул</h2></div>
+      <div class="block-body" id="grp-stool"></div>
+    </section>
+
+    <section class="block">
+      <div class="block-head"><h2>День в целом</h2></div>
+      <div class="block-body" id="grp-misc"></div>
+    </section>
+
+    <p class="autosave idle" id="autosave"><i></i><span id="autosave-txt"></span></p>
+    <p class="save-note" id="save-note"></p>
+
+  </div>
+
+  <!-- ============ ИСТОРИЯ ============ -->
+  <div id="view-history" hidden>
+    <section class="block">
+      <div class="block-head"><h2>Записи</h2><span class="tag" id="hist-count"></span></div>
+      <div class="legend">
+        <span><i style="background:var(--ink-faint)"></i>до курса</span>
+        <span><i style="background:var(--mark)"></i>во время</span>
+        <span><i style="background:var(--accent)"></i>после</span>
+      </div>
+      <div id="hist-list"></div>
+    </section>
+    <p class="note">Нажмите на строку, чтобы открыть и отредактировать день.</p>
+  </div>
+
+  <!-- ============ ИТОГИ ============ -->
+  <div id="view-summary" hidden>
+
+    <section class="block">
+      <div class="block-head"><h2>Сравнение этапов</h2><span class="tag">в среднем за день</span></div>
+      <div class="tbl-scroll" id="cmp-wrap"></div>
+    </section>
+
+    <section class="block">
+      <div class="block-head"><h2>Когда случаются симптомы</h2><span class="tag">всего эпизодов</span></div>
+      <div class="block-body" id="clock"></div>
+    </section>
+
+    <section class="block">
+      <div class="block-head"><h2>Динамика по дням</h2></div>
+      <div class="block-body" id="sparks"></div>
+    </section>
+
+    <section class="block">
+      <div class="block-head"><h2>Отчёт для врача</h2></div>
+      <div class="btnrow">
+        <button type="button" id="btn-copy">Скопировать отчёт</button>
+      </div>
+      <pre class="export" id="export-preview"></pre>
+    </section>
+
+    <p class="note">Отчёт — это текст со всеми днями и средними по этапам. Нажмите «Скопировать отчёт» и вставьте его в чат или покажите врачу.</p>
+
+  </div>
+
+  <!-- ============ ДАННЫЕ ============ -->
+  <div id="view-data" hidden>
+
+    <section class="block">
+      <div class="block-head"><h2>Резервная копия</h2><span class="tag" id="backup-tag"></span></div>
+      <div id="backup-status"></div>
+      <div class="btnrow">
+        <button type="button" id="btn-json">Сохранить копию в файл</button>
+        <button type="button" id="btn-restore">Восстановить из файла</button>
+      </div>
+      <div class="btnrow" style="padding-top:0" id="fs-row" hidden>
+        <button type="button" id="btn-fs">Писать копии автоматически</button>
+      </div>
+      <p class="note" style="margin:0 14px 14px">Записи хранятся в памяти браузера — если очистить данные сайтов или переустановить браузер, они исчезнут. Копия в файл кладётся в «Загрузки» телефона и переживает любую чистку. Приложение само напомнит, если копии нет больше суток.</p>
+    </section>
+
+    <section class="block">
+      <div class="block-head"><h2>Свои отметки</h2><span class="tag">что показывать в форме</span></div>
+      <div class="block-body">
+        <span class="grp-label">Симптомы ЖКТ</span>
+        <div id="sym-editor"></div>
+        <div class="addsym">
+          <input type="text" id="new-sym" placeholder="Например: тошнота" maxlength="28" aria-label="Название нового симптома ЖКТ">
+          <button type="button" id="btn-add-sym">Добавить</button>
+        </div>
+
+        <span class="grp-label">Самочувствие</span>
+        <div id="state-editor"></div>
+        <div class="addsym">
+          <input type="text" id="new-state" placeholder="Например: озноб" maxlength="28" aria-label="Название новой отметки самочувствия">
+          <button type="button" id="btn-add-state">Добавить</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head"><h2>Очистка</h2></div>
+      <div class="btnrow">
+        <button type="button" class="danger" id="btn-clear">Удалить все записи</button>
+      </div>
+    </section>
+
+    <input type="file" id="file-input" accept="application/json,.json" hidden>
+
+  </div>
+
+</div>
+
+<nav class="tabs">
+  <button type="button" data-view="entry" aria-current="true">Запись</button>
+  <button type="button" data-view="history">История<span class="count" id="tab-count"></span></button>
+  <button type="button" data-view="summary">Итоги</button>
+  <button type="button" data-view="data">Данные</button>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var KEY = "gut-diary-v2";
+  var OLD_KEY = "gut-diary-v1";
+
+  var PHASES = [
+    { id: "before", label: "До курса" },
+    { id: "during", label: "Во время курса" },
+    { id: "after",  label: "После курса" }
+  ];
+
+  var DEFAULT_SYMPTOMS = [
+    { id: "bloating",  label: "Вздутие",        short: "Вздутие" },
+    { id: "pain",      label: "Боль в животе",  short: "Боль" },
+    { id: "belching",  label: "Отрыжка",        short: "Отрыжка" },
+    { id: "gas",       label: "Газы",           short: "Газы" },
+    { id: "rumbling",  label: "Урчание",        short: "Урчание" },
+    { id: "heartburn", label: "Изжога",         short: "Изжога" },
+    { id: "sour",      label: "Кислый привкус", short: "Кислый" },
+    { id: "attack",    label: "Приступ «боль → диарея»", short: "Приступ", attack: true }
+  ];
+
+  // второй набор отметок — не про ЖКТ, а про самочувствие в течение дня
+  var DEFAULT_STATE = [
+    { id: "weak",      label: "Обессиленность",     short: "Обессилена" },
+    { id: "sleepy",    label: "Сонливость днём",    short: "Сонливость" },
+    { id: "dizzy",     label: "Головокружение",     short: "Головокруж." },
+    { id: "palp",      label: "Сердцебиение",       short: "Сердцебиение" },
+    { id: "breath",    label: "Одышка при нагрузке", short: "Одышка" },
+    { id: "energy_up", label: "Прилив энергии",     short: "Прилив сил", good: true }
+  ];
+
+  function withGroup(list, group) {
+    return list.map(function (s) {
+      return { id: s.id, label: s.label, short: s.short, attack: !!s.attack, good: !!s.good, group: group };
+    });
+  }
+
+  var FIELDS = {
+    sleep: [
+      { key: "sleepHours", type: "num", name: "Часов сна", hint: "всего за ночь", min: 0, max: 16, step: 0.5 },
+      { key: "nightPain", type: "choice", name: "Ночная боль мешала уснуть", options: [
+        { v: "no", l: "Нет" }, { v: "lt30", l: "До 30 мин" }, { v: "30-60", l: "30–60 мин" },
+        { v: "1-2h", l: "1–2 часа" }, { v: "gt2h", l: "Больше 2 ч" }
+      ]},
+      { key: "rested", type: "scale", name: "Выспалась", hint: "0 — разбита, 10 — отдохнула" }
+    ],
+    stool: [
+      { key: "stoolCount", type: "num", name: "Стул за день", hint: "сколько раз", min: 0, max: 15, step: 1 },
+      { key: "bristol", type: "bristol", name: "Бристольская шкала", hint: "какой был стул" }
+    ],
+    misc: [
+      { key: "period", type: "choice", name: "Менструация", hint: "кровотечение отмены на КОК", options: [
+        { v: "start", l: "Первый день" }, { v: "yes", l: "Идёт" },
+        { v: "spot", l: "Заканчивается, мазня" }, { v: "no", l: "Нет" }
+      ]},
+      { key: "notes", type: "text", name: "Заметки", hint: "что необычного, стресс, поездки" }
+    ]
+  };
+
+  var BRISTOL = [
+    { v: 1, l: "Твёрдые комочки", cls: "bristol-c" },
+    { v: 2, l: "Плотный, комковатый", cls: "bristol-c" },
+    { v: 3, l: "Колбаска с трещинами", cls: "bristol-n" },
+    { v: 4, l: "Гладкий и мягкий", cls: "bristol-n" },
+    { v: 5, l: "Мягкие кусочки", cls: "bristol-l" },
+    { v: 6, l: "Рыхлый, кашицей", cls: "bristol-l" },
+    { v: 7, l: "Водянистый", cls: "bristol-l" }
+  ];
+
+  var MEAL_UNITS = [
+    { v: "taste", l: "Только попробовала" },
+    { v: "g",     l: "В граммах",  amount: true, step: 10,  max: 3000, unit: "г",       forms: ["г", "г", "г"] },
+    { v: "plate", l: "В тарелках", amount: true, step: 0.5, max: 12,   unit: "тарелки", forms: ["тарелка", "тарелки", "тарелок"] },
+    { v: "glass", l: "В стаканах", amount: true, step: 0.5, max: 20,   unit: "стакана", forms: ["стакан", "стакана", "стаканов"] },
+    { v: "pcs",   l: "В штуках",   amount: true, step: 1,   max: 100,  unit: "шт.",     forms: ["шт.", "шт.", "шт."] },
+    { v: "other", l: "Другое",     free: true }
+  ];
+
+  var DAILY_METRICS = [
+    { key: "sleepHours", label: "Часов сна",     invert: null },
+    { key: "rested",     label: "Выспалась",     invert: true },
+    { key: "stoolCount", label: "Стул, раз",     invert: null },
+    { key: "bristol",    label: "Бристоль",      invert: null }
+  ];
+
+  var BUCKETS = [
+    { id: "night",   label: "Ночь 0–6",   from: 0,  to: 6,  night: true },
+    { id: "morning", label: "Утро 6–12",  from: 6,  to: 12 },
+    { id: "day",     label: "День 12–18", from: 12, to: 18 },
+    { id: "evening", label: "Вечер 18–24",from: 18, to: 24 }
+  ];
+
+  var state = { entries: {} };
+  var symptoms = withGroup(DEFAULT_SYMPTOMS, "gut").concat(withGroup(DEFAULT_STATE, "state"));
+  var SYM_VERSION = 3;   // поднимается, когда в стандартный набор добавляются отметки
+  var meta = { lastBackupAt: null, changedAt: null, symV: SYM_VERSION, theme: "auto" };
+  var draft = {};
+  var currentDate = todayISO();
+  var lastPhase = "before";
+  var openEpisode = null;
+  var epSeq = 0;
+
+  // ---------------- storage ----------------
+
+  function normalizeSymptoms(list) {
+    if (!list || !list.length) return null;
+    var out = [], seen = {};
+    list.forEach(function (s) {
+      if (!s || !s.id || seen[s.id]) return;
+      seen[s.id] = 1;
+      out.push({
+        id: String(s.id),
+        label: String(s.label || s.id),
+        short: String(s.short || s.label || s.id),
+        attack: !!s.attack,
+        good: !!s.good,
+        group: s.group === "state" ? "state" : "gut",
+        off: !!s.off,
+        custom: !!s.custom
+      });
+    });
+    // приступ не должен потеряться ни при каком импорте
+    if (!seen.attack) out.push({ id: "attack", label: "Приступ «боль → диарея»", short: "Приступ", attack: true, group: "gut" });
+    return out.length ? out : null;
+  }
+
+  // одноразовая доливка новых стандартных отметок тем, кто завёл дневник раньше
+  function upgradeSymptoms() {
+    if (meta.symV >= SYM_VERSION) return false;
+    var have = {};
+    symptoms.forEach(function (s) { have[s.id] = 1; });
+
+    if (meta.symV < 2) {
+      withGroup(DEFAULT_STATE, "state").forEach(function (s) {
+        if (!have[s.id]) { symptoms.push(s); have[s.id] = 1; }
+      });
+    }
+    if (meta.symV < 3) {
+      withGroup(DEFAULT_SYMPTOMS, "gut").forEach(function (s) {
+        if (have[s.id]) return;
+        var at = symptoms.length;
+        for (var i = 0; i < symptoms.length; i++) if (symptoms[i].attack) { at = i; break; }
+        symptoms.splice(at, 0, s);   // новые симптомы ЖКТ встают перед «Приступом»
+        have[s.id] = 1;
+      });
+    }
+    meta.symV = SYM_VERSION;
+    return true;
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var p = JSON.parse(raw);
+        if (p && p.entries) state.entries = p.entries;
+        if (p && p.lastPhase) lastPhase = p.lastPhase;
+        var ns = normalizeSymptoms(p && p.symptoms);
+        if (ns) { symptoms = ns; meta.symV = 0; }
+        if (p && p.meta) {
+          meta.lastBackupAt = p.meta.lastBackupAt || null;
+          meta.changedAt = p.meta.changedAt || null;
+          if (p.meta.symV) meta.symV = p.meta.symV;
+          if (p.meta.theme) meta.theme = p.meta.theme;
+        }
+        // новый набор закрепляем сразу, не дожидаясь первой отметки
+        if (upgradeSymptoms()) persist();
+        return;
+      }
+      var old = localStorage.getItem(OLD_KEY);
+      if (old) {
+        var o = JSON.parse(old);
+        if (o && o.entries) state.entries = migrate(o.entries);
+        if (o && o.lastPhase) lastPhase = o.lastPhase;
+      }
+    } catch (e) { /* start fresh */ }
+  }
+
+  // v1 stored daily 0-10 ratings; keep the daily fields, drop per-symptom scores
+  function migrate(old) {
+    var out = {};
+    Object.keys(old).forEach(function (d) {
+      var e = old[d], n = { phase: e.phase || "before", episodes: [] };
+      ["sleepHours", "nightPain", "rested", "stoolCount", "bristol", "notes"].forEach(function (k) {
+        if (e[k] != null) n[k] = e[k];
+      });
+      if (e.attack === "yes" || e.attack === "multi") {
+        n.episodes.push({ id: "m" + (++epSeq), time: "12:00", sym: "attack" });
+        if (e.attack === "multi") n.episodes.push({ id: "m" + (++epSeq), time: "18:00", sym: "attack" });
+      }
+      out[d] = n;
+    });
+    return out;
+  }
+
+  function persist() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({
+        entries: state.entries,
+        lastPhase: lastPhase,
+        symptoms: symptoms,
+        meta: meta
+      }));
+      return true;
+    } catch (e) {
+      toast("Не удалось сохранить — нет места в браузере");
+      return false;
+    }
+  }
+
+  // ---------------- helpers ----------------
+
+  function todayISO() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function nowTime() {
+    var d = new Date();
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+  function shortDate(iso) { var p = iso.split("-"); return p[2] + "." + p[1]; }
+  function fullDate(iso) { var p = iso.split("-"); return p[2] + "." + p[1] + "." + p[0]; }
+  function sortedDates() { return Object.keys(state.entries).sort(); }
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  var toastTimer;
+  function toast(msg) {
+    var t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("on"); }, 2000);
+  }
+
+  function symById(id) {
+    for (var i = 0; i < symptoms.length; i++) if (symptoms[i].id === id) return symptoms[i];
+    for (var j = 0; j < DEFAULT_SYMPTOMS.length; j++) if (DEFAULT_SYMPTOMS[j].id === id) return DEFAULT_SYMPTOMS[j];
+    return null;
+  }
+  function symLabel(id) { var s = symById(id); return s ? s.label : id; }
+  function shortSym(id) { var s = symById(id); return s ? (s.short || s.label) : id; }
+
+  function groupOf(s) { return s.group === "state" ? "state" : "gut"; }
+
+  // симптомы, показываемые кнопками на вкладке «Запись»
+  function activeSymptoms(group) {
+    return symptoms.filter(function (s) { return !s.off && (!group || groupOf(s) === group); });
+  }
+  function inGroup(list, group) {
+    return list.filter(function (s) { return groupOf(s) === group; });
+  }
+  // симптомы для таблиц и отчёта: скрытые тоже нужны, если по ним есть отметки
+  function statSymptoms() {
+    var used = {};
+    sortedDates().forEach(function (d) {
+      (state.entries[d].episodes || []).forEach(function (x) { used[x.sym] = 1; });
+    });
+    var out = symptoms.filter(function (s) { return !s.off || used[s.id]; });
+    var known = {};
+    out.forEach(function (s) { known[s.id] = 1; });
+    // отметки симптома, который удалили из списка, всё равно показываем
+    Object.keys(used).forEach(function (id) {
+      if (!known[id]) out.push({ id: id, label: symLabel(id), short: shortSym(id), attack: id === "attack", group: "gut" });
+    });
+    return out;
+  }
+
+  function daysSince(iso) {
+    if (!iso) return null;
+    var then = new Date(iso).getTime();
+    if (isNaN(then)) return null;
+    return Math.floor((Date.now() - then) / 86400000);
+  }
+  function sameDay(iso) {
+    if (!iso) return false;
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return false;
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0") === todayISO();
+  }
+  function optLabel(fieldKey, value) {
+    var all = [].concat(FIELDS.sleep, FIELDS.stool, FIELDS.misc);
+    for (var i = 0; i < all.length; i++) {
+      if (all[i].key === fieldKey && all[i].options) {
+        for (var j = 0; j < all[i].options.length; j++) {
+          if (all[i].options[j].v === value) return all[i].options[j].l;
+        }
+      }
+    }
+    return value == null ? "" : String(value);
+  }
+  function timeToMin(t) {
+    if (!t) return 0;
+    var p = t.split(":");
+    return Number(p[0]) * 60 + Number(p[1] || 0);
+  }
+
+  // ---------------- episodes ----------------
+
+  function episodes() {
+    if (!draft.episodes) draft.episodes = [];
+    return draft.episodes;
+  }
+
+  function addEpisode(symId) {
+    episodes().push({ id: "e" + Date.now() + "-" + (++epSeq), time: nowTime(), sym: symId });
+    openEpisode = null;
+    renderEpisodes();
+    commit();
+    toast(shortSym(symId) + " — " + nowTime() + " · сохранено");
+  }
+
+  function renderSymGrid() {
+    fillGrid("sym-grid", "gut", "Все симптомы убраны — верните их на вкладке «Данные»");
+    fillGrid("state-grid", "state", "Отметки самочувствия убраны — верните их на вкладке «Данные»");
+  }
+
+  function fillGrid(hostId, group, emptyText) {
+    var host = document.getElementById(hostId);
+    host.textContent = "";
+    var list = activeSymptoms(group);
+    if (!list.length) {
+      host.appendChild(el("div", "ep-empty", emptyText));
+      return;
+    }
+    list.forEach(function (s) {
+      var cls = s.attack ? "attack" : (s.good ? "good" : null);
+      var b = el("button", cls);
+      b.type = "button";
+      b.appendChild(el("span", "plus", "+"));
+      b.appendChild(el("span", "l", s.label));
+      var n = el("span", "n");
+      var c = episodes().filter(function (e) { return e.sym === s.id; }).length;
+      n.textContent = c ? String(c) : "";
+      b.appendChild(n);
+      b.addEventListener("click", function () { addEpisode(s.id); });
+      host.appendChild(b);
+    });
+  }
+
+  function renderEpisodes() {
+    renderSymGrid();
+    var host = document.getElementById("ep-list");
+    host.textContent = "";
+    var list = episodes().slice().sort(function (a, b) { return timeToMin(a.time) - timeToMin(b.time); });
+
+    if (!list.length) {
+      host.appendChild(el("div", "ep-empty", "Пока ничего не отмечено. Нажмите симптом, когда он появится."));
+      return;
+    }
+
+    list.forEach(function (ep) {
+      var row = el("div", "ep");
+      var main = el("button", "ep-main" + (ep.sym === "attack" ? " is-attack" : ""));
+      main.type = "button";
+      main.appendChild(el("span", "t", ep.time));
+      main.appendChild(el("span", "dot"));
+      main.appendChild(el("span", "s", shortSym(ep.sym)));
+      if (ep.int != null) main.appendChild(el("span", "i", ep.int + "/10"));
+      main.appendChild(el("span", "chev", openEpisode === ep.id ? "▴" : "▾"));
+      main.addEventListener("click", function () {
+        openEpisode = (openEpisode === ep.id) ? null : ep.id;
+        renderEpisodes();
+      });
+      row.appendChild(main);
+
+      if (openEpisode === ep.id) {
+        var edit = el("div", "ep-edit");
+
+        var tr = el("div", "ep-edit-row");
+        var lab = el("label", null, "Время");
+        lab.htmlFor = "t-" + ep.id;
+        var ti = document.createElement("input");
+        ti.type = "time";
+        ti.id = "t-" + ep.id;
+        ti.value = ep.time;
+        ti.addEventListener("change", function () {
+          if (ti.value) { ep.time = ti.value; renderEpisodes(); commit(); }
+        });
+        tr.appendChild(lab); tr.appendChild(ti);
+        edit.appendChild(tr);
+
+        edit.appendChild(el("span", "lbl", "Насколько сильно (необязательно)"));
+        var sc = el("div", "scale compact");
+        sc.setAttribute("role", "group");
+        sc.setAttribute("aria-label", "Интенсивность");
+        for (var i = 0; i <= 10; i++) {
+          (function (n) {
+            var b = el("button", null, String(n));
+            b.type = "button";
+            b.setAttribute("aria-pressed", ep.int === n ? "true" : "false");
+            b.addEventListener("click", function () {
+              if (ep.int === n) delete ep.int; else ep.int = n;
+              renderEpisodes();
+              commit();
+            });
+            sc.appendChild(b);
+          })(i);
+        }
+        edit.appendChild(sc);
+
+        var del = el("button", "ep-del", "Удалить эту отметку");
+        del.type = "button";
+        del.addEventListener("click", function () {
+          draft.episodes = episodes().filter(function (x) { return x.id !== ep.id; });
+          openEpisode = null;
+          renderEpisodes();
+          commit();
+        });
+        edit.appendChild(del);
+
+        row.appendChild(edit);
+      }
+
+      host.appendChild(row);
+    });
+  }
+
+  // ---------------- приёмы пищи ----------------
+
+  var openMeal = null;
+
+  function meals() {
+    if (!draft.meals) draft.meals = [];
+    return draft.meals;
+  }
+
+  function unitDef(v) {
+    for (var i = 0; i < MEAL_UNITS.length; i++) if (MEAL_UNITS[i].v === v) return MEAL_UNITS[i];
+    return null;
+  }
+
+  function num(n) {
+    if (n == null) return "";
+    return (Math.round(n * 10) / 10).toString().replace(".", ",");
+  }
+
+  // forms: [1 тарелка, 2 тарелки, 5 тарелок]; дробное — всегда вторая форма (1,5 стакана)
+  function plural(n, forms) {
+    if (n !== Math.floor(n)) return forms[1];
+    var d = n % 10, h = n % 100;
+    if (d === 1 && h !== 11) return forms[0];
+    if (d >= 2 && d <= 4 && (h < 12 || h > 14)) return forms[1];
+    return forms[2];
+  }
+
+  function qtyText(m) {
+    var q = m.qty || {};
+    if (!q.unit) return "";
+    if (q.unit === "taste") return "попробовала";
+    if (q.unit === "other") return (q.text || "").trim();
+    if (q.amount == null) return "";
+    var def = unitDef(q.unit);
+    if (def && def.forms) return num(q.amount) + " " + plural(q.amount, def.forms);
+    return num(q.amount);
+  }
+
+  function mealSummary(m) {
+    var q = qtyText(m);
+    var what = (m.what || "").trim();
+    if (what && q) return what + " — " + q;
+    return what || q || "";
+  }
+
+  // для отчёта: к блюду добавляем состав, если он записан
+  function mealFull(m) {
+    var s = mealSummary(m) || "без описания";
+    var c = (m.comp || "").trim().replace(/\n/g, " ");
+    return c ? s + " (состав: " + c + ")" : s;
+  }
+
+  function addMeal() {
+    var m = {
+      id: "f" + Date.now() + "-" + (++epSeq),
+      time: nowTime(),
+      what: "",
+      comp: "",
+      qty: { unit: null, amount: null, text: "" }
+    };
+    meals().push(m);
+    openMeal = m.id;
+    renderMeals();
+    commit();
+    toast("Приём пищи — " + m.time);
+  }
+
+  function renderMeals() {
+    var host = document.getElementById("meal-list");
+    var list = meals().slice().sort(function (a, b) { return timeToMin(a.time) - timeToMin(b.time); });
+
+    document.getElementById("meal-n").textContent = list.length ? String(list.length) : "";
+    host.textContent = "";
+
+    if (!list.length) {
+      host.appendChild(el("div", "ep-empty", "Пока ничего не записано. Добавляйте каждый приём пищи и перекус."));
+      return;
+    }
+
+    list.forEach(function (m) {
+      var row = el("div", "ep");
+      var main = el("button", "ep-main");
+      main.type = "button";
+      main.appendChild(el("span", "t", m.time));
+      main.appendChild(el("span", "dot food"));
+
+      var what = (m.what || "").trim();
+      main.appendChild(el("span", "w" + (what ? "" : " none"), what || "без описания"));
+
+      var q = qtyText(m);
+      if (q) main.appendChild(el("span", "q", q));
+      main.appendChild(el("span", "chev", openMeal === m.id ? "▴" : "▾"));
+
+      main.addEventListener("click", function () {
+        openMeal = (openMeal === m.id) ? null : m.id;
+        renderMeals();
+      });
+      row.appendChild(main);
+
+      if (openMeal === m.id) row.appendChild(mealEditor(m));
+      host.appendChild(row);
+    });
+  }
+
+  function mealEditor(m) {
+    var edit = el("div", "ep-edit");
+
+    var tr = el("div", "ep-edit-row");
+    var lab = el("label", null, "Время");
+    lab.htmlFor = "mt-" + m.id;
+    var ti = document.createElement("input");
+    ti.type = "time";
+    ti.id = "mt-" + m.id;
+    ti.value = m.time;
+    ti.addEventListener("change", function () {
+      if (ti.value) { m.time = ti.value; renderMeals(); commit(); }
+    });
+    tr.appendChild(lab);
+    tr.appendChild(ti);
+    edit.appendChild(tr);
+
+    edit.appendChild(el("span", "lbl", "Что съела"));
+    var ta = document.createElement("textarea");
+    ta.className = "what";
+    ta.value = m.what || "";
+    ta.placeholder = "Например: суп, салат, чай";
+    ta.setAttribute("aria-label", "Что съела");
+    ta.addEventListener("input", function () { m.what = ta.value; commitSoon(); });
+    edit.appendChild(ta);
+
+    edit.appendChild(el("span", "lbl", "Состав"));
+    var comp = document.createElement("textarea");
+    comp.className = "what";
+    comp.value = m.comp || "";
+    comp.placeholder = "Из чего: продукты, специи, масло";
+    comp.setAttribute("aria-label", "Состав блюда");
+    comp.addEventListener("input", function () { m.comp = comp.value; commitSoon(); });
+    edit.appendChild(comp);
+
+    edit.appendChild(el("span", "lbl", "Сколько"));
+    var chips = el("div", "chips");
+    chips.setAttribute("role", "group");
+    chips.setAttribute("aria-label", "Количество");
+    if (!m.qty) m.qty = { unit: null, amount: null, text: "" };
+
+    MEAL_UNITS.forEach(function (u) {
+      var b = el("button", null, u.l);
+      b.type = "button";
+      b.setAttribute("aria-pressed", m.qty.unit === u.v ? "true" : "false");
+      b.addEventListener("click", function () {
+        if (m.qty.unit === u.v) {
+          m.qty = { unit: null, amount: null, text: "" };
+        } else {
+          m.qty = { unit: u.v, amount: null, text: "" };
+        }
+        renderMeals();
+        commit();
+      });
+      chips.appendChild(b);
+    });
+    edit.appendChild(chips);
+
+    var def = unitDef(m.qty.unit);
+    if (def && def.amount) {
+      var wrap = el("div", "qty-amount");
+      var inp = document.createElement("input");
+      inp.type = "number";
+      inp.min = 0;
+      inp.max = def.max;
+      inp.step = def.step;
+      inp.inputMode = "decimal";
+      inp.value = m.qty.amount == null ? "" : m.qty.amount;
+      inp.setAttribute("aria-label", "Сколько, " + def.unit);
+      inp.addEventListener("input", function () {
+        m.qty.amount = inp.value === "" ? null : Number(inp.value);
+        commitSoon();
+      });
+      wrap.appendChild(inp);
+      wrap.appendChild(el("span", "unit", def.unit));
+      edit.appendChild(wrap);
+    } else if (def && def.free) {
+      var free = document.createElement("input");
+      free.type = "text";
+      free.value = m.qty.text || "";
+      free.placeholder = "Например: полстакана, пара ложек";
+      free.setAttribute("aria-label", "Количество своими словами");
+      free.addEventListener("input", function () { m.qty.text = free.value; commitSoon(); });
+      edit.appendChild(free);
+    }
+
+    var del = el("button", "ep-del", "Удалить этот приём пищи");
+    del.type = "button";
+    del.addEventListener("click", function () {
+      draft.meals = meals().filter(function (x) { return x.id !== m.id; });
+      openMeal = null;
+      renderMeals();
+      commit();
+    });
+    edit.appendChild(del);
+
+    return edit;
+  }
+
+  // ---------------- лекарства ----------------
+
+  var openMed = null;
+
+  function medsOf() {
+    if (!draft.meds) draft.meds = [];
+    return draft.meds;
+  }
+
+  function medSummary(m) {
+    var name = (m.drug || "").trim();
+    var dose = (m.dose || "").trim();
+    if (name && dose) return name + " " + dose;
+    return name || dose || "";
+  }
+
+  function knownDrugs() {
+    var seen = {}, out = [];
+    sortedDates().reverse().forEach(function (d) {
+      (state.entries[d].meds || []).forEach(function (m) {
+        var n = (m.drug || "").trim();
+        if (n && !seen[n.toLowerCase()]) { seen[n.toLowerCase()] = 1; out.push(n); }
+      });
+    });
+    return out.slice(0, 20);
+  }
+
+  function syncDrugList() {
+    var dl = document.getElementById("drug-names");
+    dl.textContent = "";
+    knownDrugs().forEach(function (n) {
+      var o = document.createElement("option");
+      o.value = n;
+      dl.appendChild(o);
+    });
+  }
+
+  function addMed() {
+    var m = { id: "d" + Date.now() + "-" + (++epSeq), time: nowTime(), drug: "", dose: "", missed: false };
+    medsOf().push(m);
+    openMed = m.id;
+    renderMeds();
+    commit();
+    toast("Приём лекарства — " + m.time);
+  }
+
+  function renderMeds() {
+    var host = document.getElementById("med-list");
+    var list = medsOf().slice().sort(function (a, b) { return timeToMin(a.time) - timeToMin(b.time); });
+
+    document.getElementById("med-n").textContent = list.length ? String(list.length) : "";
+    host.textContent = "";
+    syncDrugList();
+
+    if (!list.length) {
+      host.appendChild(el("div", "ep-empty", "Пока ничего не записано. Отмечайте каждый приём — и пропуски тоже."));
+      return;
+    }
+
+    list.forEach(function (m) {
+      var row = el("div", "ep");
+      var main = el("button", "ep-main");
+      main.type = "button";
+      main.appendChild(el("span", "t", m.time));
+      main.appendChild(el("span", "dot med" + (m.missed ? " miss" : "")));
+
+      var name = medSummary(m);
+      main.appendChild(el("span", "w" + (name ? "" : " none") + (m.missed ? " miss" : ""), name || "без названия"));
+      if (m.missed) main.appendChild(el("span", "q", "пропуск"));
+      main.appendChild(el("span", "chev", openMed === m.id ? "▴" : "▾"));
+
+      main.addEventListener("click", function () {
+        openMed = (openMed === m.id) ? null : m.id;
+        renderMeds();
+      });
+      row.appendChild(main);
+
+      if (openMed === m.id) row.appendChild(medEditor(m));
+      host.appendChild(row);
+    });
+  }
+
+  function medEditor(m) {
+    var edit = el("div", "ep-edit");
+
+    var tr = el("div", "ep-edit-row");
+    var lab = el("label", null, "Время");
+    lab.htmlFor = "dt-" + m.id;
+    var ti = document.createElement("input");
+    ti.type = "time";
+    ti.id = "dt-" + m.id;
+    ti.value = m.time;
+    ti.addEventListener("change", function () {
+      if (ti.value) { m.time = ti.value; renderMeds(); commit(); }
+    });
+    tr.appendChild(lab);
+    tr.appendChild(ti);
+    edit.appendChild(tr);
+
+    edit.appendChild(el("span", "lbl", "Препарат"));
+    var name = document.createElement("input");
+    name.type = "text";
+    name.value = m.drug || "";
+    name.placeholder = "Название";
+    name.setAttribute("list", "drug-names");
+    name.setAttribute("aria-label", "Название препарата");
+    name.addEventListener("input", function () { m.drug = name.value; commitSoon(); });
+    edit.appendChild(name);
+
+    edit.appendChild(el("span", "lbl", "Доза"));
+    var dose = document.createElement("input");
+    dose.type = "text";
+    dose.value = m.dose || "";
+    dose.placeholder = "Например: 1 таблетка, 250 мг";
+    dose.setAttribute("aria-label", "Доза");
+    dose.addEventListener("input", function () { m.dose = dose.value; commitSoon(); });
+    edit.appendChild(dose);
+
+    var miss = el("button", "miss-toggle");
+    miss.type = "button";
+    miss.setAttribute("aria-pressed", m.missed ? "true" : "false");
+    miss.appendChild(el("span", "box", m.missed ? "✓" : ""));
+    miss.appendChild(el("span", null, "Не приняла — это пропуск"));
+    miss.addEventListener("click", function () {
+      m.missed = !m.missed;
+      renderMeds();
+      commit();
+    });
+    edit.appendChild(miss);
+
+    var del = el("button", "ep-del", "Удалить эту запись");
+    del.type = "button";
+    del.addEventListener("click", function () {
+      draft.meds = medsOf().filter(function (x) { return x.id !== m.id; });
+      openMed = null;
+      renderMeds();
+      commit();
+    });
+    edit.appendChild(del);
+
+    return edit;
+  }
+
+  // ---------------- form builders ----------------
+
+  var syncers = [];
+
+  function head(f) {
+    var lab = el("div", "field-label");
+    var left = el("div");
+    left.appendChild(el("span", "name", f.name));
+    if (f.hint) { left.appendChild(document.createTextNode(" ")); left.appendChild(el("span", "hint", f.hint)); }
+    lab.appendChild(left);
+    return lab;
+  }
+
+  function buildScale(f) {
+    var wrap = el("div", "field");
+    var lab = head(f);
+    var val = el("span", "val empty", "—");
+    lab.appendChild(val);
+    wrap.appendChild(lab);
+
+    var row = el("div", "scale");
+    row.setAttribute("role", "group");
+    row.setAttribute("aria-label", f.name);
+    for (var i = 0; i <= 10; i++) {
+      (function (n) {
+        var b = el("button", null, String(n));
+        b.type = "button";
+        b.setAttribute("aria-pressed", "false");
+        b.addEventListener("click", function () {
+          if (draft[f.key] === n) delete draft[f.key]; else draft[f.key] = n;
+          sync();
+          commit();
+        });
+        row.appendChild(b);
+      })(i);
+    }
+    wrap.appendChild(row);
+
+    function sync() {
+      var v = draft[f.key];
+      var btns = row.querySelectorAll("button");
+      for (var i = 0; i < btns.length; i++) btns[i].setAttribute("aria-pressed", v === i ? "true" : "false");
+      if (v == null) { val.textContent = "—"; val.className = "val empty"; }
+      else { val.textContent = String(v); val.className = "val"; }
+    }
+    wrap._sync = sync;
+    return wrap;
+  }
+
+  function buildChoice(f) {
+    var wrap = el("div", "field");
+    wrap.appendChild(head(f));
+    var row = el("div", "chips");
+    row.setAttribute("role", "group");
+    row.setAttribute("aria-label", f.name);
+    f.options.forEach(function (o) {
+      var b = el("button", null, o.l);
+      b.type = "button";
+      b.dataset.v = o.v;
+      b.setAttribute("aria-pressed", "false");
+      b.addEventListener("click", function () {
+        if (draft[f.key] === o.v) delete draft[f.key]; else draft[f.key] = o.v;
+        sync();
+        commit();
+      });
+      row.appendChild(b);
+    });
+    wrap.appendChild(row);
+    function sync() {
+      var v = draft[f.key];
+      var btns = row.querySelectorAll("button");
+      for (var i = 0; i < btns.length; i++) btns[i].setAttribute("aria-pressed", btns[i].dataset.v === v ? "true" : "false");
+    }
+    wrap._sync = sync;
+    return wrap;
+  }
+
+  function buildBristol(f) {
+    var wrap = el("div", "field");
+    wrap.appendChild(head(f));
+    var row = el("div", "chips bristol-grid");
+    row.setAttribute("role", "group");
+    row.setAttribute("aria-label", f.name);
+    BRISTOL.forEach(function (o) {
+      var b = el("button", o.cls);
+      b.type = "button";
+      b.dataset.v = String(o.v);
+      b.setAttribute("aria-pressed", "false");
+      b.appendChild(el("b", null, String(o.v)));
+      b.appendChild(document.createTextNode(o.l));
+      b.addEventListener("click", function () {
+        if (draft[f.key] === o.v) delete draft[f.key]; else draft[f.key] = o.v;
+        sync();
+        commit();
+      });
+      row.appendChild(b);
+    });
+    wrap.appendChild(row);
+    function sync() {
+      var v = draft[f.key];
+      var btns = row.querySelectorAll("button");
+      for (var i = 0; i < btns.length; i++) btns[i].setAttribute("aria-pressed", Number(btns[i].dataset.v) === v ? "true" : "false");
+    }
+    wrap._sync = sync;
+    return wrap;
+  }
+
+  function buildNum(f) {
+    var wrap = el("div", "field");
+    wrap.appendChild(head(f));
+    var inp = document.createElement("input");
+    inp.type = "number";
+    inp.min = f.min; inp.max = f.max; inp.step = f.step;
+    inp.inputMode = "decimal";
+    inp.setAttribute("aria-label", f.name);
+    inp.addEventListener("input", function () {
+      if (inp.value === "") delete draft[f.key]; else draft[f.key] = Number(inp.value);
+      commitSoon();
+    });
+    wrap.appendChild(inp);
+    wrap._sync = function () { inp.value = (draft[f.key] == null ? "" : draft[f.key]); };
+    return wrap;
+  }
+
+  function buildText(f) {
+    var wrap = el("div", "field");
+    wrap.appendChild(head(f));
+    var ta = document.createElement("textarea");
+    ta.setAttribute("aria-label", f.name);
+    ta.placeholder = "Необязательно";
+    ta.addEventListener("input", function () {
+      if (ta.value.trim() === "") delete draft[f.key]; else draft[f.key] = ta.value;
+      commitSoon();
+    });
+    wrap.appendChild(ta);
+    wrap._sync = function () { ta.value = draft[f.key] || ""; };
+    return wrap;
+  }
+
+  function buildGroup(containerId, list) {
+    var c = document.getElementById(containerId);
+    list.forEach(function (f) {
+      var node;
+      if (f.type === "scale") node = buildScale(f);
+      else if (f.type === "choice") node = buildChoice(f);
+      else if (f.type === "bristol") node = buildBristol(f);
+      else if (f.type === "num") node = buildNum(f);
+      else node = buildText(f);
+      c.appendChild(node);
+      syncers.push(node._sync);
+    });
+  }
+
+  function buildPhase() {
+    var row = document.getElementById("phase");
+    PHASES.forEach(function (p) {
+      var b = el("button", null, p.label);
+      b.type = "button";
+      b.dataset.v = p.id;
+      b.setAttribute("aria-pressed", "false");
+      b.addEventListener("click", function () {
+        draft.phase = p.id;
+        lastPhase = p.id;
+        syncPhase();
+        commit();
+      });
+      row.appendChild(b);
+    });
+  }
+
+  function syncPhase() {
+    var btns = document.getElementById("phase").querySelectorAll("button");
+    for (var i = 0; i < btns.length; i++) btns[i].setAttribute("aria-pressed", btns[i].dataset.v === draft.phase ? "true" : "false");
+    document.getElementById("phase-tag").textContent = draft.phase === "before" ? "точка отсчёта" : "";
+  }
+
+  // ---------------- entry ----------------
+
+  function loadDate(iso) {
+    currentDate = iso;
+    document.getElementById("date").value = iso;
+    var e = state.entries[iso];
+    draft = e ? JSON.parse(JSON.stringify(e)) : { phase: lastPhase, episodes: [], meals: [], meds: [] };
+    if (!draft.phase) draft.phase = lastPhase;
+    if (!draft.episodes) draft.episodes = [];
+    if (!draft.meals) draft.meals = [];
+    if (!draft.meds) draft.meds = [];
+    openEpisode = null;
+    openMeal = null;
+    openMed = null;
+    syncers.forEach(function (f) { f(); });
+    syncPhase();
+    renderEpisodes();
+    renderMeals();
+    renderMeds();
+    document.getElementById("save-note").textContent =
+      "Отмечайте симптомы в течение дня, вечером допишите сон и стул";
+    setAutosave(e ? "saved" : "idle");
+    updateMast();
+  }
+
+  // ---------------- автосохранение ----------------
+
+  function draftIsEmpty() {
+    if ((draft.episodes || []).length) return false;
+    if ((draft.meals || []).length) return false;
+    if ((draft.meds || []).length) return false;
+    return !Object.keys(draft).some(function (k) {
+      return k !== "phase" && k !== "episodes" && k !== "meals" && k !== "meds" &&
+             draft[k] != null && draft[k] !== "";
+    });
+  }
+
+  function setAutosave(mode) {
+    var box = document.getElementById("autosave");
+    var txt = document.getElementById("autosave-txt");
+    if (mode === "saved") {
+      box.className = "autosave";
+      txt.textContent = "Сохранено автоматически · " + nowTime();
+    } else {
+      box.className = "autosave idle";
+      txt.textContent = "Всё сохраняется само — кнопка не нужна";
+    }
+  }
+
+  var commitTimer = null;
+
+  function commitSoon() {
+    clearTimeout(commitTimer);
+    commitTimer = setTimeout(function () { commitTimer = null; commit(); }, 700);
+  }
+
+  function commit() {
+    clearTimeout(commitTimer);
+    commitTimer = null;
+
+    if (draftIsEmpty()) {
+      if (state.entries[currentDate]) {
+        delete state.entries[currentDate];
+        meta.changedAt = new Date().toISOString();
+        persist();
+      }
+      setAutosave("idle");
+      afterChange();
+      return;
+    }
+
+    state.entries[currentDate] = JSON.parse(JSON.stringify(draft));
+    meta.changedAt = new Date().toISOString();
+    if (persist()) setAutosave("saved");
+    afterChange();
+  }
+
+  function afterChange() {
+    updateMast();
+    document.getElementById("tab-count").textContent =
+      sortedDates().length ? String(sortedDates().length) : "";
+    if (!document.getElementById("view-history").hidden) renderHistory();
+    if (!document.getElementById("view-summary").hidden) renderSummary();
+    updateBanner();
+    autoFileBackupSoon();
+  }
+
+  // ---------------- stats ----------------
+
+  function entriesByPhase(phase) {
+    return sortedDates()
+      .filter(function (d) { return (state.entries[d].phase || "before") === phase; })
+      .map(function (d) { return state.entries[d]; });
+  }
+
+  function epCount(entry, symId) {
+    return (entry.episodes || []).filter(function (e) { return e.sym === symId; }).length;
+  }
+
+  function avgEp(list, symId) {
+    if (!list.length) return null;
+    var s = 0;
+    list.forEach(function (e) { s += epCount(e, symId); });
+    return s / list.length;
+  }
+
+  function totalEp(list, symId) {
+    var s = 0;
+    list.forEach(function (e) { s += epCount(e, symId); });
+    return s;
+  }
+
+  function avgInt(list, symId) {
+    var vals = [];
+    list.forEach(function (e) {
+      (e.episodes || []).forEach(function (x) {
+        if (x.sym === symId && typeof x.int === "number") vals.push(x.int);
+      });
+    });
+    if (!vals.length) return null;
+    return vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
+  }
+
+  function avgMeals(list) {
+    if (!list.length) return null;
+    var s = 0;
+    list.forEach(function (e) { s += (e.meals || []).length; });
+    return s / list.length;
+  }
+
+  function avgMeds(list) {
+    if (!list.length) return null;
+    var s = 0;
+    list.forEach(function (e) {
+      s += (e.meds || []).filter(function (m) { return !m.missed; }).length;
+    });
+    return s / list.length;
+  }
+
+  function missedMeds(list) {
+    var s = 0;
+    list.forEach(function (e) {
+      s += (e.meds || []).filter(function (m) { return m.missed; }).length;
+    });
+    return s;
+  }
+
+  function countPeriod(list) {
+    return list.filter(function (e) { return e.period && e.period !== "no"; }).length;
+  }
+
+  function periodShort(v) {
+    var map = { start: "1-й день", yes: "идёт", spot: "заканчивается" };
+    return map[v] || "";
+  }
+
+  function avg(list, key) {
+    var vals = list.map(function (e) { return e[key]; }).filter(function (v) { return typeof v === "number"; });
+    if (!vals.length) return null;
+    return vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
+  }
+
+  function fmt(n, d) {
+    if (n == null) return "—";
+    return n.toFixed(d == null ? 1 : d).replace(".", ",");
+  }
+
+  function countNights(list) {
+    return list.filter(function (e) { return e.nightPain && e.nightPain !== "no"; }).length;
+  }
+
+  function bucketOf(time) {
+    var h = Math.floor(timeToMin(time) / 60);
+    for (var i = 0; i < BUCKETS.length; i++) {
+      if (h >= BUCKETS[i].from && h < BUCKETS[i].to) return BUCKETS[i].id;
+    }
+    return "night";
+  }
+
+  function bucketCounts(list) {
+    var out = {};
+    BUCKETS.forEach(function (b) { out[b.id] = 0; });
+    list.forEach(function (e) {
+      (e.episodes || []).forEach(function (x) { out[bucketOf(x.time)]++; });
+    });
+    return out;
+  }
+
+  // ---------------- render: history ----------------
+
+  function renderHistory() {
+    var list = document.getElementById("hist-list");
+    list.textContent = "";
+    var dates = sortedDates().reverse();
+    document.getElementById("hist-count").textContent = dates.length ? dates.length + " дн." : "";
+    document.getElementById("tab-count").textContent = dates.length ? String(dates.length) : "";
+
+    if (!dates.length) {
+      list.appendChild(el("div", "empty-state", "Пока нет записей. Заполните первую на вкладке «Запись»."));
+      return;
+    }
+
+    dates.forEach(function (d) {
+      var e = state.entries[d];
+      var row = el("button", "hrow");
+      row.type = "button";
+      row.appendChild(el("span", "ph " + (e.phase || "before")));
+      row.appendChild(el("span", "d", shortDate(d)));
+
+      var m = el("div", "metrics");
+      function add(lbl, v) {
+        if (v == null || v === "") return;
+        var s = el("span");
+        s.appendChild(el("i", null, lbl + " "));
+        s.appendChild(document.createTextNode(String(v)));
+        m.appendChild(s);
+      }
+      var total = (e.episodes || []).filter(function (x) { return x.sym !== "attack"; }).length;
+      add("эпиз", total || null);
+      add("еда", (e.meals || []).length || null);
+      var taken = (e.meds || []).filter(function (x) { return !x.missed; }).length;
+      var skipped = (e.meds || []).filter(function (x) { return x.missed; }).length;
+      add("лек", taken || null);
+      add("сон", e.sleepHours != null ? fmt(e.sleepHours, 1) + "ч" : null);
+      if (e.bristol != null) add("бристоль", e.bristol);
+      if (e.period && e.period !== "no") add("менстр", periodShort(e.period));
+      if (skipped) m.appendChild(el("span", "flag", "пропуск" + (skipped > 1 ? " ×" + skipped : "")));
+      var atk = epCount(e, "attack");
+      if (atk) m.appendChild(el("span", "flag", "приступ" + (atk > 1 ? " ×" + atk : "")));
+      row.appendChild(m);
+
+      row.addEventListener("click", function () {
+        switchView("entry");
+        loadDate(d);
+        window.scrollTo(0, 0);
+      });
+      list.appendChild(row);
+    });
+  }
+
+  // ---------------- render: summary ----------------
+
+  function renderSummary() {
+    var wrap = document.getElementById("cmp-wrap");
+    wrap.textContent = "";
+
+    var active = PHASES.filter(function (p) { return entriesByPhase(p.id).length > 0; });
+
+    if (!active.length) {
+      wrap.appendChild(el("div", "empty-state", "Появится, когда будут записи."));
+      document.getElementById("clock").textContent = "";
+      document.getElementById("sparks").textContent = "";
+      document.getElementById("export-preview").textContent = "";
+      return;
+    }
+
+    var t = el("table", "cmp");
+    var thead = el("thead");
+    var hr = el("tr");
+    hr.appendChild(el("th", null, "Показатель"));
+    active.forEach(function (g) { hr.appendChild(el("th", null, g.label)); });
+    thead.appendChild(hr);
+    t.appendChild(thead);
+    var tb = el("tbody");
+
+    function groupRow(txt) {
+      var tr = el("tr", "grp");
+      var td = el("td", null, txt);
+      td.colSpan = active.length + 1;
+      tr.appendChild(td);
+      tb.appendChild(tr);
+    }
+    function dataRow(label, fn) {
+      var tr = el("tr");
+      tr.appendChild(el("td", null, label));
+      active.forEach(function (p) { tr.appendChild(el("td", "num", fn(entriesByPhase(p.id)))); });
+      tb.appendChild(tr);
+    }
+
+    dataRow("Дней записано", function (l) { return String(l.length); });
+    dataRow("Приёмов пищи в день", function (l) { return fmt(avgMeals(l)); });
+    dataRow("Приёмов лекарств в день", function (l) { return fmt(avgMeds(l)); });
+    dataRow("Пропусков лекарств", function (l) { return String(missedMeds(l)); });
+    dataRow("Дней с менструацией", function (l) { return countPeriod(l) + " / " + l.length; });
+
+    groupRow("Симптомы ЖКТ, эпизодов в день");
+    inGroup(statSymptoms(), "gut").forEach(function (s) {
+      if (s.attack) return;
+      dataRow(s.label, function (l) { return fmt(avgEp(l, s.id)); });
+    });
+    dataRow("Приступов всего", function (l) { return String(totalEp(l, "attack")); });
+
+    var stateList = inGroup(statSymptoms(), "state");
+    if (stateList.length) {
+      groupRow("Самочувствие, эпизодов в день");
+      stateList.forEach(function (s) {
+        dataRow(s.label, function (l) { return fmt(avgEp(l, s.id)); });
+      });
+    }
+
+    var anyInt = false;
+    statSymptoms().forEach(function (s) {
+      active.forEach(function (p) { if (avgInt(entriesByPhase(p.id), s.id) != null) anyInt = true; });
+    });
+    if (anyInt) {
+      groupRow("Средняя сила, из 10");
+      statSymptoms().forEach(function (s) {
+        var has = false;
+        active.forEach(function (p) { if (avgInt(entriesByPhase(p.id), s.id) != null) has = true; });
+        if (has) dataRow(s.label, function (l) { return fmt(avgInt(l, s.id)); });
+      });
+    }
+
+    groupRow("Ночь, сон, день");
+    dataRow("Ночей с болью", function (l) { return countNights(l) + " / " + l.length; });
+    DAILY_METRICS.forEach(function (m) {
+      dataRow(m.label, function (l) { return fmt(avg(l, m.key)); });
+    });
+
+    t.appendChild(tb);
+    wrap.appendChild(t);
+
+    renderClock();
+    renderSparks();
+    renderExport();
+  }
+
+  function renderClock() {
+    var host = document.getElementById("clock");
+    host.textContent = "";
+    var all = sortedDates().map(function (d) { return state.entries[d]; });
+    var counts = bucketCounts(all);
+    var max = 0;
+    BUCKETS.forEach(function (b) { if (counts[b.id] > max) max = counts[b.id]; });
+
+    if (!max) {
+      host.appendChild(el("div", "empty-state", "Появится, когда будут отмечены эпизоды."));
+      return;
+    }
+
+    var box = el("div", "clock");
+    BUCKETS.forEach(function (b) {
+      var row = el("div", "clock-row");
+      row.appendChild(el("span", "lab", b.label));
+      var w = el("div", "bar-wrap");
+      var bar = el("div", "bar" + (b.night ? " night" : ""));
+      bar.style.width = Math.round((counts[b.id] / max) * 100) + "%";
+      w.appendChild(bar);
+      row.appendChild(w);
+      row.appendChild(el("span", "n", String(counts[b.id])));
+      box.appendChild(row);
+    });
+    host.appendChild(box);
+  }
+
+  function phaseColor(p) {
+    if (p === "during") return "var(--mark)";
+    if (p === "after") return "var(--accent)";
+    return "var(--ink-faint)";
+  }
+
+  function renderSparks() {
+    var host = document.getElementById("sparks");
+    host.textContent = "";
+    var dates = sortedDates();
+    if (dates.length < 2) {
+      host.appendChild(el("div", "empty-state", "Нужно минимум два дня записей."));
+      return;
+    }
+
+    var all = dates.map(function (d) { return state.entries[d]; });
+
+    // два самых частых симптома — свои у каждого, поэтому считаем, а не задаём списком
+    var top = statSymptoms()
+      .filter(function (s) { return !s.attack; })
+      .map(function (s) { return { s: s, n: totalEp(all, s.id) }; })
+      .filter(function (x) { return x.n > 0; })
+      .sort(function (a, b) { return b.n - a.n; })
+      .slice(0, 2);
+
+    var series = [
+      { label: "Эпизодов всего за день", invert: false, get: function (e) {
+        return (e.episodes || []).filter(function (x) { return x.sym !== "attack"; }).length; } }
+    ];
+    top.forEach(function (x) {
+      series.push({
+        label: x.s.label + ", эпизодов",
+        invert: false,
+        get: function (e) { return epCount(e, x.s.id); }
+      });
+    });
+    var weak = statSymptoms().filter(function (s) { return s.id === "weak"; })[0];
+    if (weak && totalEp(all, "weak")) {
+      series.push({ label: "Обессиленность, эпизодов", invert: false, get: function (e) { return epCount(e, "weak"); } });
+    }
+    series.push(
+      { label: "Выспалась", invert: true, get: function (e) { return typeof e.rested === "number" ? e.rested : null; } }
+    );
+
+    series.forEach(function (s) {
+      var pts = [];
+      dates.forEach(function (d, i) {
+        var v = s.get(state.entries[d]);
+        if (typeof v === "number") pts.push({ i: i, v: v, phase: state.entries[d].phase || "before" });
+      });
+      if (pts.length < 2) return;
+
+      var max = 1;
+      pts.forEach(function (p) { if (p.v > max) max = p.v; });
+
+      var box = el("div", "spark");
+      var hd = el("div", "spark-head");
+      hd.appendChild(el("span", null, s.label));
+
+      var before = pts.filter(function (p) { return p.phase === "before"; });
+      var later = pts.filter(function (p) { return p.phase !== "before"; });
+      if (before.length && later.length) {
+        var b = before.reduce(function (a, p) { return a + p.v; }, 0) / before.length;
+        var l = later.reduce(function (a, p) { return a + p.v; }, 0) / later.length;
+        var diff = l - b;
+        var improved = s.invert ? diff > 0 : diff < 0;
+        var cls = Math.abs(diff) < 0.25 ? "flat" : (improved ? "down" : "up");
+        hd.appendChild(el("span", "delta " + cls, (diff > 0 ? "+" : "−") + fmt(Math.abs(diff)) + " к базе"));
+      }
+      box.appendChild(hd);
+
+      var W = 300, H = 44, pad = 3;
+      var maxI = dates.length - 1 || 1;
+      var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+      svg.setAttribute("preserveAspectRatio", "none");
+      svg.setAttribute("role", "img");
+      svg.setAttribute("aria-label", "Динамика: " + s.label);
+
+      function X(i) { return pad + (i / maxI) * (W - pad * 2); }
+      function Y(v) { return H - pad - (v / max) * (H - pad * 2); }
+
+      var mid = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      mid.setAttribute("x1", 0); mid.setAttribute("x2", W);
+      mid.setAttribute("y1", Y(max / 2)); mid.setAttribute("y2", Y(max / 2));
+      mid.setAttribute("stroke", "var(--rule)"); mid.setAttribute("stroke-width", "1");
+      svg.appendChild(mid);
+
+      for (var k = 0; k < pts.length - 1; k++) {
+        var a = pts[k], bb = pts[k + 1];
+        var ln = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        ln.setAttribute("x1", X(a.i)); ln.setAttribute("y1", Y(a.v));
+        ln.setAttribute("x2", X(bb.i)); ln.setAttribute("y2", Y(bb.v));
+        ln.setAttribute("stroke", phaseColor(bb.phase));
+        ln.setAttribute("stroke-width", "1.5");
+        ln.setAttribute("stroke-linecap", "round");
+        svg.appendChild(ln);
+      }
+      pts.forEach(function (p, idx) {
+        var c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        c.setAttribute("cx", X(p.i)); c.setAttribute("cy", Y(p.v));
+        c.setAttribute("r", idx === pts.length - 1 ? 3 : 1.8);
+        c.setAttribute("fill", phaseColor(p.phase));
+        svg.appendChild(c);
+      });
+
+      box.appendChild(svg);
+      host.appendChild(box);
+    });
+
+    if (!host.children.length) {
+      host.appendChild(el("div", "empty-state", "Пока недостаточно данных для графиков."));
+    }
+  }
+
+  // ---------------- export ----------------
+
+  function buildReport() {
+    var dates = sortedDates();
+    if (!dates.length) return "Записей нет.";
+
+    var out = [];
+    out.push("# Дневник симптомов ЖКТ");
+    out.push("Период: " + fullDate(dates[0]) + " — " + fullDate(dates[dates.length - 1]) + " · дней: " + dates.length);
+    out.push("");
+
+    PHASES.forEach(function (p) {
+      var ds = dates.filter(function (d) { return (state.entries[d].phase || "before") === p.id; });
+      if (!ds.length) return;
+
+      out.push("## " + p.label + " (" + ds.length + " дн.)");
+      out.push("");
+      out.push("Эпизоды по дням (в скобках — время; ×N — сила из 10):");
+      out.push("");
+      out.push("| Дата | Отмеченные эпизоды | Сон,ч | Ночн.боль | Выспал | Стул | Бристоль | Менстр | Заметки |");
+      out.push("|---|---|---|---|---|---|---|---|---|");
+      ds.forEach(function (d) {
+        var e = state.entries[d];
+        var eps = (e.episodes || []).slice().sort(function (a, b) { return timeToMin(a.time) - timeToMin(b.time); });
+        var epTxt = eps.length ? eps.map(function (x) {
+          return shortSym(x.sym) + " " + x.time + (x.int != null ? " ×" + x.int : "");
+        }).join("; ") : "—";
+        function c(v) { return v == null ? "" : String(v); }
+        out.push("| " + [
+          fullDate(d),
+          epTxt,
+          e.sleepHours == null ? "" : fmt(e.sleepHours, 1),
+          e.nightPain ? optLabel("nightPain", e.nightPain) : "",
+          c(e.rested), c(e.stoolCount), c(e.bristol),
+          e.period ? optLabel("period", e.period) : "",
+          (e.notes || "").replace(/\|/g, "/").replace(/\n/g, " ")
+        ].join(" | ") + " |");
+      });
+      out.push("");
+    });
+
+    var active = PHASES.filter(function (p) { return entriesByPhase(p.id).length > 0; });
+    var heads = active.map(function (p) { return p.label; }).join(" | ");
+    var seps = "|---" + active.map(function () { return "|---"; }).join("") + "|";
+
+    out.push("## Средние по этапам");
+    out.push("");
+    out.push("| Показатель | " + heads + " |");
+    out.push(seps);
+    out.push("| Дней записано | " + active.map(function (p) { return entriesByPhase(p.id).length; }).join(" | ") + " |");
+    out.push("| Приёмов пищи в день | " + active.map(function (p) { return fmt(avgMeals(entriesByPhase(p.id))); }).join(" | ") + " |");
+    out.push("| Приёмов лекарств в день | " + active.map(function (p) { return fmt(avgMeds(entriesByPhase(p.id))); }).join(" | ") + " |");
+    out.push("| Пропусков лекарств | " + active.map(function (p) { return missedMeds(entriesByPhase(p.id)); }).join(" | ") + " |");
+    out.push("| Дней с менструацией | " + active.map(function (p) {
+      var l = entriesByPhase(p.id); return countPeriod(l) + "/" + l.length;
+    }).join(" | ") + " |");
+
+    out.push("| **Симптомы ЖКТ, эпизодов в день** | " + active.map(function () { return ""; }).join(" | ") + " |");
+    inGroup(statSymptoms(), "gut").forEach(function (s) {
+      if (s.attack) return;
+      out.push("| " + s.label + " | " + active.map(function (p) { return fmt(avgEp(entriesByPhase(p.id), s.id)); }).join(" | ") + " |");
+    });
+    out.push("| Приступов «боль→диарея», всего | " + active.map(function (p) { return totalEp(entriesByPhase(p.id), "attack"); }).join(" | ") + " |");
+
+    var stateRows = inGroup(statSymptoms(), "state");
+    if (stateRows.length) {
+      out.push("| **Самочувствие, эпизодов в день** | " + active.map(function () { return ""; }).join(" | ") + " |");
+      stateRows.forEach(function (s) {
+        out.push("| " + s.label + " | " + active.map(function (p) { return fmt(avgEp(entriesByPhase(p.id), s.id)); }).join(" | ") + " |");
+      });
+    }
+
+    out.push("| **Ночь, сон, день** | " + active.map(function () { return ""; }).join(" | ") + " |");
+    out.push("| Ночей с болью | " + active.map(function (p) {
+      var l = entriesByPhase(p.id); return countNights(l) + "/" + l.length;
+    }).join(" | ") + " |");
+    DAILY_METRICS.forEach(function (m) {
+      out.push("| " + m.label + " | " + active.map(function (p) { return fmt(avg(entriesByPhase(p.id), m.key)); }).join(" | ") + " |");
+    });
+
+    var withFood = dates.filter(function (d) {
+      var e = state.entries[d];
+      return (e.meals || []).length || (e.meds || []).length;
+    });
+    if (withFood.length) {
+      out.push("");
+      out.push("## Еда, лекарства и симптомы по времени");
+      out.push("");
+      withFood.forEach(function (d) {
+        var e = state.entries[d];
+        var ph = PHASES.filter(function (p) { return p.id === (e.phase || "before"); })[0];
+        var head = fullDate(d) + (ph ? " — " + ph.label.toLowerCase() : "");
+        if (e.period && e.period !== "no") head += " · менструация: " + optLabel("period", e.period).toLowerCase();
+        out.push("### " + head);
+        var items = [];
+        (e.meals || []).forEach(function (m) {
+          items.push({ t: m.time, s: "еда: " + mealFull(m) });
+        });
+        (e.meds || []).forEach(function (m) {
+          items.push({ t: m.time, s: (m.missed ? "ПРОПУСК: " : "лекарство: ") + (medSummary(m) || "без названия") });
+        });
+        (e.episodes || []).forEach(function (x) {
+          items.push({ t: x.time, s: shortSym(x.sym) + (x.int != null ? " " + x.int + "/10" : "") });
+        });
+        items.sort(function (a, b) { return timeToMin(a.t) - timeToMin(b.t); });
+        items.forEach(function (x) { out.push("- " + x.t + " · " + x.s.replace(/\n/g, " ")); });
+        out.push("");
+      });
+    }
+
+    out.push("");
+    out.push("## Распределение эпизодов по времени суток");
+    out.push("");
+    out.push("| Время | " + heads + " |");
+    out.push(seps);
+    BUCKETS.forEach(function (b) {
+      out.push("| " + b.label + " | " + active.map(function (p) {
+        return bucketCounts(entriesByPhase(p.id))[b.id];
+      }).join(" | ") + " |");
+    });
+
+    return out.join("\n");
+  }
+
+  function renderExport() {
+    document.getElementById("export-preview").textContent = buildReport();
+  }
+
+  function copyReport() {
+    var txt = buildReport();
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = txt;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); toast("Отчёт скопирован"); }
+      catch (e) { toast("Скопируйте текст вручную из окна ниже"); }
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { toast("Отчёт скопирован"); }, fallback);
+    } else { fallback(); }
+  }
+
+  // ---------------- резервные копии ----------------
+
+  function backupText() {
+    return JSON.stringify({
+      app: "gut-diary",
+      version: 2,
+      exportedAt: new Date().toISOString(),
+      lastPhase: lastPhase,
+      symptoms: symptoms,
+      entries: state.entries
+    }, null, 2);
+  }
+
+  function backupName() {
+    return "dnevnik-zhkt-" + todayISO() + ".json";
+  }
+
+  function markBackedUp() {
+    meta.lastBackupAt = new Date().toISOString();
+    persist();
+    updateBanner();
+    renderBackupStatus();
+  }
+
+  function downloadJSON() {
+    if (!sortedDates().length) { toast("Пока нечего сохранять"); return; }
+    var blob = new Blob([backupText()], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = backupName();
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    markBackedUp();
+    toast("Копия сохранена в «Загрузки»");
+  }
+
+  // --- автоматическая запись в выбранный файл (если браузер это умеет) ---
+
+  var fileHandle = null;
+  var fsSupported = (typeof window.showSaveFilePicker === "function");
+
+  var IDB_NAME = "gut-diary-fs", IDB_STORE = "handles";
+
+  function idb(cb) {
+    try {
+      var rq = indexedDB.open(IDB_NAME, 1);
+      rq.onupgradeneeded = function () { rq.result.createObjectStore(IDB_STORE); };
+      rq.onsuccess = function () { cb(rq.result); };
+      rq.onerror = function () { cb(null); };
+    } catch (e) { cb(null); }
+  }
+
+  function saveHandle(h) {
+    idb(function (db) {
+      if (!db) return;
+      try { db.transaction(IDB_STORE, "readwrite").objectStore(IDB_STORE).put(h, "backup"); } catch (e) {}
+    });
+  }
+
+  function loadHandle(cb) {
+    idb(function (db) {
+      if (!db) { cb(null); return; }
+      try {
+        var rq = db.transaction(IDB_STORE, "readonly").objectStore(IDB_STORE).get("backup");
+        rq.onsuccess = function () { cb(rq.result || null); };
+        rq.onerror = function () { cb(null); };
+      } catch (e) { cb(null); }
+    });
+  }
+
+  function pickBackupFile() {
+    if (!fsSupported) { toast("Этот браузер так не умеет — сохраняйте копию кнопкой"); return; }
+    window.showSaveFilePicker({
+      suggestedName: backupName(),
+      types: [{ description: "Резервная копия дневника", accept: { "application/json": [".json"] } }]
+    }).then(function (h) {
+      fileHandle = h;
+      saveHandle(h);
+      return writeToFile(true);
+    }).catch(function (e) {
+      if (e && e.name === "AbortError") return;
+      // некоторые браузеры не дают выбирать файл внутри встроенной страницы
+      fsSupported = false;
+      renderBackupStatus();
+      toast("Здесь так нельзя — сохраняйте копию кнопкой выше");
+    });
+  }
+
+  function writeToFile(loud) {
+    if (!fileHandle) return Promise.resolve(false);
+    return fileHandle.createWritable().then(function (w) {
+      return w.write(backupText()).then(function () { return w.close(); });
+    }).then(function () {
+      markBackedUp();
+      if (loud) toast("Копия пишется в файл автоматически");
+      return true;
+    }).catch(function () {
+      if (loud) toast("Нет доступа к файлу — выберите его заново");
+      return false;
+    });
+  }
+
+  var fileTimer = null;
+  function autoFileBackupSoon() {
+    if (!fileHandle) return;
+    clearTimeout(fileTimer);
+    fileTimer = setTimeout(function () { writeToFile(false); }, 4000);
+  }
+
+  function restoreHandle() {
+    if (!fsSupported) return;
+    loadHandle(function (h) {
+      if (!h) return;
+      if (!h.queryPermission) { fileHandle = h; renderBackupStatus(); return; }
+      h.queryPermission({ mode: "readwrite" }).then(function (p) {
+        if (p === "granted") { fileHandle = h; renderBackupStatus(); }
+      }).catch(function () {});
+    });
+  }
+
+  // --- восстановление из файла ---
+
+  function importFile(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var data;
+      try { data = JSON.parse(String(reader.result)); }
+      catch (e) { toast("Это не файл дневника"); return; }
+      if (!data || typeof data !== "object" || !data.entries || typeof data.entries !== "object") {
+        toast("В файле нет записей дневника");
+        return;
+      }
+      var incoming = Object.keys(data.entries).length;
+      var have = sortedDates().length;
+      var msg;
+      if (have) {
+        msg = "В файле " + incoming + " дн., сейчас в дневнике " + have + " дн.\n\n" +
+              "OK — объединить (при совпадении дат останется версия из файла).\n" +
+              "Отмена — ничего не менять.";
+        if (!confirm(msg)) return;
+      } else if (!confirm("Загрузить " + incoming + " дн. из файла?")) {
+        return;
+      }
+      Object.keys(data.entries).forEach(function (d) {
+        var e = data.entries[d];
+        if (e && typeof e === "object") state.entries[d] = e;
+      });
+      var ns = normalizeSymptoms(data.symptoms);
+      if (ns) { symptoms = ns; meta.symV = 0; upgradeSymptoms(); }
+      if (data.lastPhase) lastPhase = data.lastPhase;
+      meta.changedAt = new Date().toISOString();
+      if (data.exportedAt) {
+        meta.lastBackupAt = data.exportedAt;
+        // чистое восстановление в пустой дневник — файл и есть актуальная копия
+        if (!have) meta.changedAt = data.exportedAt;
+      }
+      persist();
+      loadDate(currentDate);
+      renderAll();
+      renderSymEditor();
+      renderBackupStatus();
+      toast("Восстановлено: " + incoming + " дн.");
+    };
+    reader.onerror = function () { toast("Не удалось прочитать файл"); };
+    reader.readAsText(file);
+  }
+
+  // --- напоминание ---
+
+  function backupAgeText() {
+    if (!meta.lastBackupAt) return "копии ещё не было";
+    var d = daysSince(meta.lastBackupAt);
+    if (sameDay(meta.lastBackupAt)) return "сегодня";
+    if (d <= 1) return "вчера";
+    if (d < 5) return d + " дн. назад";
+    return d + " дн. назад";
+  }
+
+  function backupIsStale() {
+    if (!sortedDates().length) return false;
+    if (!meta.lastBackupAt) return true;
+    if (sameDay(meta.lastBackupAt)) return false;
+    // копия нужна заново, только если после неё что-то менялось
+    return !meta.changedAt || new Date(meta.changedAt) > new Date(meta.lastBackupAt);
+  }
+
+  function updateBanner() {
+    var b = document.getElementById("backup-banner");
+    if (!backupIsStale()) { b.hidden = true; return; }
+    b.hidden = false;
+    document.getElementById("banner-title").textContent =
+      meta.lastBackupAt ? "Резервная копия — " + backupAgeText() : "Резервной копии ещё нет";
+    document.getElementById("banner-sub").textContent =
+      "Записи живут только в этом браузере. Сохраните файл, чтобы не потерять их.";
+  }
+
+  function renderBackupStatus() {
+    var host = document.getElementById("backup-status");
+    if (!host) return;
+    host.textContent = "";
+
+    function row(k, v, cls) {
+      var r = el("div", "kv");
+      r.appendChild(el("span", "k", k));
+      r.appendChild(el("span", "v" + (cls ? " " + cls : ""), v));
+      host.appendChild(r);
+    }
+
+    var n = sortedDates().length;
+    row("Записей в дневнике", n ? n + " дн." : "нет");
+    row("Последняя копия", backupAgeText(), backupIsStale() ? "bad-v" : "ok-v");
+    if (fileHandle) row("Автоматически в файл", (fileHandle.name || "выбранный файл"), "ok-v");
+
+    document.getElementById("backup-tag").textContent = backupIsStale() ? "пора сохранить" : "в порядке";
+    var fsRow = document.getElementById("fs-row");
+    fsRow.hidden = !fsSupported;
+    document.getElementById("btn-fs").textContent =
+      fileHandle ? "Выбрать другой файл для копий" : "Писать копии автоматически";
+  }
+
+  // ---------------- редактор списка симптомов ----------------
+
+  function usageCount(id) {
+    var n = 0;
+    sortedDates().forEach(function (d) { n += epCount(state.entries[d], id); });
+    return n;
+  }
+
+  function saveSymptoms() {
+    persist();
+    renderSymEditor();
+    renderEpisodes();
+  }
+
+  // меняем местами с соседом внутри своей группы
+  function moveSym(id, dir) {
+    var i = -1;
+    for (var k = 0; k < symptoms.length; k++) if (symptoms[k].id === id) i = k;
+    if (i < 0) return;
+    var g = groupOf(symptoms[i]), j = -1;
+    for (var n = i + dir; n >= 0 && n < symptoms.length; n += dir) {
+      if (groupOf(symptoms[n]) === g) { j = n; break; }
+    }
+    if (j < 0) return;
+    var t = symptoms[i];
+    symptoms[i] = symptoms[j];
+    symptoms[j] = t;
+    saveSymptoms();
+  }
+
+  function renderSymEditor() {
+    fillEditor("sym-editor", "gut");
+    fillEditor("state-editor", "state");
+  }
+
+  function fillEditor(hostId, group) {
+    var host = document.getElementById(hostId);
+    if (!host) return;
+    host.textContent = "";
+
+    var list = inGroup(symptoms, group);
+
+    list.forEach(function (s, i) {
+      var row = el("div", "symrow" + (s.off ? " off" : ""));
+      row.appendChild(el("span", "nm", s.label));
+
+      var used = usageCount(s.id);
+      if (used) row.appendChild(el("span", "used", used + " отм."));
+
+      function ib(txt, title, cls, fn, off) {
+        var b = el("button", "ib" + (cls ? " " + cls : ""), txt);
+        b.type = "button";
+        b.title = title;
+        b.setAttribute("aria-label", title);
+        if (off) b.disabled = true; else b.addEventListener("click", fn);
+        row.appendChild(b);
+        return b;
+      }
+
+      ib("↑", "Выше", null, function () { moveSym(s.id, -1); }, i === 0);
+      ib("↓", "Ниже", null, function () { moveSym(s.id, 1); }, i === list.length - 1);
+      ib(s.off ? "+" : "−", s.off ? "Вернуть в список" : "Убрать из списка", null, function () {
+        s.off = !s.off;
+        saveSymptoms();
+      });
+
+      if (s.attack) {
+        ib("×", "Приступ удалить нельзя", "del", null, true);
+      } else {
+        ib("×", "Удалить совсем", "del", function () {
+          if (used) {
+            toast("По нему есть " + used + " отм. — можно только убрать из списка");
+            return;
+          }
+          if (!confirm("Удалить «" + s.label + "» из списка?")) return;
+          symptoms = symptoms.filter(function (x) { return x.id !== s.id; });
+          saveSymptoms();
+        });
+      }
+
+      host.appendChild(row);
+    });
+  }
+
+  function addSymptom(inputId, group) {
+    var inp = document.getElementById(inputId);
+    var name = inp.value.trim();
+    if (!name) { inp.focus(); return; }
+    var dup = symptoms.some(function (s) { return s.label.toLowerCase() === name.toLowerCase(); });
+    if (dup) { toast("Такая отметка уже есть"); return; }
+
+    var short = name.length > 12 ? name.slice(0, 11) + "…" : name;
+    var item = {
+      // счётчик обязателен: две отметки в одну миллисекунду иначе получат один id
+      id: "c" + Date.now().toString(36) + "-" + (++epSeq).toString(36),
+      label: name,
+      short: short,
+      group: group,
+      custom: true
+    };
+
+    // ставим в конец своей группы, но «Приступ» держим последним среди ЖКТ
+    var at = symptoms.length;
+    for (var i = symptoms.length - 1; i >= 0; i--) {
+      if (groupOf(symptoms[i]) === group) { at = symptoms[i].attack ? i : i + 1; break; }
+      at = i;
+    }
+    symptoms.splice(at, 0, item);
+
+    inp.value = "";
+    saveSymptoms();
+    toast("«" + name + "» добавлена");
+  }
+
+  // ---------------- views ----------------
+
+  function switchView(v) {
+    document.getElementById("view-entry").hidden = (v !== "entry");
+    document.getElementById("view-history").hidden = (v !== "history");
+    document.getElementById("view-summary").hidden = (v !== "summary");
+    document.getElementById("view-data").hidden = (v !== "data");
+    var btns = document.querySelectorAll("nav.tabs button");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute("aria-current", btns[i].dataset.view === v ? "true" : "false");
+    }
+    if (v === "history") renderHistory();
+    if (v === "summary") renderSummary();
+    if (v === "data") { renderBackupStatus(); renderSymEditor(); }
+    updateMast();
+  }
+
+  // ---------------- тема ----------------
+
+  var THEMES = [
+    { v: "auto",  glyph: "◐", name: "как в системе" },
+    { v: "light", glyph: "☀", name: "светлая" },
+    { v: "dark",  glyph: "☾", name: "тёмная" }
+  ];
+
+  function themeDef(v) {
+    for (var i = 0; i < THEMES.length; i++) if (THEMES[i].v === v) return THEMES[i];
+    return THEMES[0];
+  }
+
+  function applyTheme() {
+    var t = themeDef(meta.theme);
+    var root = document.documentElement;
+    if (t.v === "auto") delete root.dataset.theme;
+    else root.dataset.theme = t.v;
+    var b = document.getElementById("theme-btn");
+    b.textContent = t.glyph;
+    b.title = "Тема: " + t.name;
+    b.setAttribute("aria-label", "Тема: " + t.name + ". Нажмите, чтобы сменить");
+  }
+
+  function cycleTheme() {
+    var i = 0;
+    for (var k = 0; k < THEMES.length; k++) if (THEMES[k].v === meta.theme) i = k;
+    meta.theme = THEMES[(i + 1) % THEMES.length].v;
+    persist();
+    applyTheme();
+    toast("Тема: " + themeDef(meta.theme).name);
+  }
+
+  function updateMast() {
+    var n = sortedDates().length;
+    document.getElementById("mast-sub").textContent = n ? n + " дн." : "новый";
+  }
+
+  function renderAll() { renderHistory(); updateMast(); updateBanner(); }
+
+  // ---------------- init ----------------
+
+  load();
+  applyTheme();
+  document.getElementById("theme-btn").addEventListener("click", cycleTheme);
+  buildPhase();
+  buildGroup("grp-sleep", FIELDS.sleep);
+  buildGroup("grp-stool", FIELDS.stool);
+  buildGroup("grp-misc", FIELDS.misc);
+
+  document.getElementById("date").addEventListener("change", function (ev) {
+    if (ev.target.value) loadDate(ev.target.value);
+  });
+  document.getElementById("btn-today").addEventListener("click", function () { loadDate(todayISO()); });
+  document.getElementById("meal-add").addEventListener("click", addMeal);
+  document.getElementById("med-add").addEventListener("click", addMed);
+  document.getElementById("btn-copy").addEventListener("click", copyReport);
+  document.getElementById("btn-json").addEventListener("click", downloadJSON);
+  document.getElementById("banner-btn").addEventListener("click", downloadJSON);
+  document.getElementById("btn-fs").addEventListener("click", pickBackupFile);
+
+  document.getElementById("btn-restore").addEventListener("click", function () {
+    document.getElementById("file-input").click();
+  });
+  document.getElementById("file-input").addEventListener("change", function (ev) {
+    var f = ev.target.files && ev.target.files[0];
+    if (f) importFile(f);
+    ev.target.value = "";
+  });
+
+  document.getElementById("btn-add-sym").addEventListener("click", function () { addSymptom("new-sym", "gut"); });
+  document.getElementById("new-sym").addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter") { ev.preventDefault(); addSymptom("new-sym", "gut"); }
+  });
+  document.getElementById("btn-add-state").addEventListener("click", function () { addSymptom("new-state", "state"); });
+  document.getElementById("new-state").addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter") { ev.preventDefault(); addSymptom("new-state", "state"); }
+  });
+
+  document.getElementById("btn-clear").addEventListener("click", function () {
+    if (!sortedDates().length) { toast("Записей и так нет"); return; }
+    if (!confirm("Удалить все записи безвозвратно?")) return;
+    if (!confirm("Точно? Сначала лучше сохранить копию в файл. Удалить всё?")) return;
+    state.entries = {};
+    meta.changedAt = new Date().toISOString();
+    persist();
+    loadDate(currentDate);
+    renderAll();
+    renderBackupStatus();
+    toast("Все записи удалены");
+  });
+
+  // черновик уже сохранён, но добиваем отложенные правки при уходе со страницы
+  window.addEventListener("pagehide", function () { if (commitTimer) commit(); });
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden" && commitTimer) commit();
+  });
+
+  var tabs = document.querySelectorAll("nav.tabs button");
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].addEventListener("click", function (ev) { switchView(ev.currentTarget.dataset.view); });
+  }
+
+  loadDate(todayISO());
+  renderAll();
+  renderBackupStatus();
+  renderSymEditor();
+  restoreHandle();
+})();
+</script>
+
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("./sw.js").catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>
