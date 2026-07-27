@@ -588,9 +588,6 @@
     flex: 0 0 auto;
   }
   .hrow .ph { flex: 0 0 auto; width: 6px; height: 30px; border-radius: 2px; background: var(--rule-strong); }
-  .hrow .ph.before { background: var(--ink-faint); }
-  .hrow .ph.during { background: var(--mark); }
-  .hrow .ph.after  { background: var(--accent); }
   .hrow .metrics {
     flex: 1 1 auto;
     display: flex;
@@ -947,6 +944,26 @@
   .symrow .ib[disabled] { opacity: .3; cursor: default; }
   .symrow .ib[disabled]:hover { border-color: var(--rule-strong); color: var(--ink-soft); }
 
+  .symrow .phase-dot {
+    flex: 0 0 auto;
+    width: 6px; height: 30px;
+    border-radius: 2px;
+    background: var(--rule-strong);
+  }
+  .symrow input.phase-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: none;
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 0.875rem;
+  }
+  .symrow input.phase-name:hover { border-color: var(--rule); }
+  .symrow input.phase-name:focus { border-color: var(--accent); background: var(--surface); }
+
   .addsym { display: flex; gap: 8px; padding-top: 12px; }
   .addsym input[type="text"] {
     flex: 1 1 auto;
@@ -1068,11 +1085,7 @@
   <div id="view-history" hidden>
     <section class="block">
       <div class="block-head"><h2>Записи</h2><span class="tag" id="hist-count"></span></div>
-      <div class="legend">
-        <span><i style="background:var(--ink-faint)"></i>до курса</span>
-        <span><i style="background:var(--mark)"></i>во время</span>
-        <span><i style="background:var(--accent)"></i>после</span>
-      </div>
+      <div class="legend" id="hist-legend"></div>
       <div id="hist-list"></div>
     </section>
     <p class="note">Нажмите на строку, чтобы открыть и отредактировать день.</p>
@@ -1125,6 +1138,18 @@
     </section>
 
     <section class="block">
+      <div class="block-head"><h2>Этапы</h2><span class="tag">периоды для сравнения</span></div>
+      <div class="block-body">
+        <div id="phase-editor"></div>
+        <div class="addsym">
+          <input type="text" id="new-phase" placeholder="Например: Low FODMAP" maxlength="32" aria-label="Название нового этапа">
+          <button type="button" id="btn-add-phase">Добавить</button>
+        </div>
+        <p class="note" style="margin-top:12px">Первый этап в списке — точка отсчёта: с ним «Итоги» сравнивают все остальные. Названия можно менять в любой момент, записи за этими днями не пострадают.</p>
+      </div>
+    </section>
+
+    <section class="block">
       <div class="block-head"><h2>Свои отметки</h2><span class="tag">что показывать в форме</span></div>
       <div class="block-body">
         <span class="grp-label">Симптомы ЖКТ</span>
@@ -1172,10 +1197,18 @@
   var KEY = "gut-diary-v2";
   var OLD_KEY = "gut-diary-v1";
 
-  var PHASES = [
+  // Этапы задаёт сама пользовательница: курс лекарств, диета, просто «обычная жизнь».
+  // Это лишь стартовый набор — названия, порядок и количество меняются на вкладке «Данные».
+  var DEFAULT_PHASES = [
     { id: "before", label: "До курса" },
     { id: "during", label: "Во время курса" },
     { id: "after",  label: "После курса" }
+  ];
+
+  // цвета этапов по порядку; первый — точка отсчёта, поэтому нейтральный
+  var PHASE_COLORS = [
+    "var(--ink-faint)", "var(--mark)", "var(--accent)",
+    "var(--good)", "var(--warn)", "var(--bad)"
   ];
 
   var DEFAULT_SYMPTOMS = [
@@ -1262,6 +1295,8 @@
 
   var state = { entries: {} };
   var symptoms = withGroup(DEFAULT_SYMPTOMS, "gut").concat(withGroup(DEFAULT_STATE, "state"));
+  var phases = DEFAULT_PHASES.map(function (p) { return { id: p.id, label: p.label }; });
+
   var SYM_VERSION = 3;   // поднимается, когда в стандартный набор добавляются отметки
   var meta = { lastBackupAt: null, changedAt: null, symV: SYM_VERSION, theme: "auto" };
   var draft = {};
@@ -1271,6 +1306,44 @@
   var epSeq = 0;
 
   // ---------------- storage ----------------
+
+  function normalizePhases(list) {
+    if (!list || !list.length) return null;
+    var out = [], seen = {};
+    list.forEach(function (p) {
+      if (!p || !p.id || seen[p.id]) return;
+      seen[p.id] = 1;
+      out.push({ id: String(p.id), label: String(p.label || p.id) });
+    });
+    return out.length ? out : null;
+  }
+
+  function phaseIndex(id) {
+    for (var i = 0; i < phases.length; i++) if (phases[i].id === id) return i;
+    return -1;
+  }
+  function phaseLabel(id) {
+    var i = phaseIndex(id);
+    if (i >= 0) return phases[i].label;
+    return id ? "Этап удалён" : "Без этапа";
+  }
+  function phaseColor(id) {
+    var i = phaseIndex(id);
+    return i < 0 ? "var(--rule-strong)" : PHASE_COLORS[i % PHASE_COLORS.length];
+  }
+  function basePhase() { return phases.length ? phases[0].id : null; }
+
+  // этапы для таблиц: свои плюс те, что остались в записях после удаления
+  function statPhases() {
+    var out = phases.slice();
+    var known = {};
+    out.forEach(function (p) { known[p.id] = 1; });
+    sortedDates().forEach(function (d) {
+      var id = state.entries[d].phase;
+      if (id && !known[id]) { known[id] = 1; out.push({ id: id, label: phaseLabel(id) }); }
+    });
+    return out;
+  }
 
   function normalizeSymptoms(list) {
     if (!list || !list.length) return null;
@@ -1325,6 +1398,8 @@
         var p = JSON.parse(raw);
         if (p && p.entries) state.entries = p.entries;
         if (p && p.lastPhase) lastPhase = p.lastPhase;
+        var np = normalizePhases(p && p.phases);
+        if (np) phases = np;
         var ns = normalizeSymptoms(p && p.symptoms);
         if (ns) { symptoms = ns; meta.symV = 0; }
         if (p && p.meta) {
@@ -1333,6 +1408,7 @@
           if (p.meta.symV) meta.symV = p.meta.symV;
           if (p.meta.theme) meta.theme = p.meta.theme;
         }
+        if (phaseIndex(lastPhase) < 0) lastPhase = basePhase();
         // новый набор закрепляем сразу, не дожидаясь первой отметки
         if (upgradeSymptoms()) persist();
         return;
@@ -1368,6 +1444,7 @@
       localStorage.setItem(KEY, JSON.stringify({
         entries: state.entries,
         lastPhase: lastPhase,
+        phases: phases,
         symptoms: symptoms,
         meta: meta
       }));
@@ -2093,7 +2170,14 @@
 
   function buildPhase() {
     var row = document.getElementById("phase");
-    PHASES.forEach(function (p) {
+    row.textContent = "";
+
+    if (!phases.length) {
+      row.appendChild(el("div", "ep-empty", "Этапов нет — добавьте их на вкладке «Данные»"));
+      return;
+    }
+
+    phases.forEach(function (p) {
       var b = el("button", null, p.label);
       b.type = "button";
       b.dataset.v = p.id;
@@ -2106,12 +2190,14 @@
       });
       row.appendChild(b);
     });
+    syncPhase();
   }
 
   function syncPhase() {
     var btns = document.getElementById("phase").querySelectorAll("button");
     for (var i = 0; i < btns.length; i++) btns[i].setAttribute("aria-pressed", btns[i].dataset.v === draft.phase ? "true" : "false");
-    document.getElementById("phase-tag").textContent = draft.phase === "before" ? "точка отсчёта" : "";
+    document.getElementById("phase-tag").textContent =
+      (draft.phase && draft.phase === basePhase()) ? "точка отсчёта" : "";
   }
 
   // ---------------- entry ----------------
@@ -2205,7 +2291,7 @@
 
   function entriesByPhase(phase) {
     return sortedDates()
-      .filter(function (d) { return (state.entries[d].phase || "before") === phase; })
+      .filter(function (d) { return (state.entries[d].phase || basePhase()) === phase; })
       .map(function (d) { return state.entries[d]; });
   }
 
@@ -2304,7 +2390,21 @@
 
   // ---------------- render: history ----------------
 
+  function renderLegend() {
+    var host = document.getElementById("hist-legend");
+    host.textContent = "";
+    statPhases().forEach(function (p) {
+      var s = el("span");
+      var i = el("i");
+      i.style.background = phaseColor(p.id);
+      s.appendChild(i);
+      s.appendChild(document.createTextNode(p.label.toLowerCase()));
+      host.appendChild(s);
+    });
+  }
+
   function renderHistory() {
+    renderLegend();
     var list = document.getElementById("hist-list");
     list.textContent = "";
     var dates = sortedDates().reverse();
@@ -2320,7 +2420,10 @@
       var e = state.entries[d];
       var row = el("button", "hrow");
       row.type = "button";
-      row.appendChild(el("span", "ph " + (e.phase || "before")));
+      var bar = el("span", "ph");
+      bar.style.background = phaseColor(e.phase || basePhase());
+      bar.title = phaseLabel(e.phase || basePhase());
+      row.appendChild(bar);
       row.appendChild(el("span", "d", shortDate(d)));
 
       var m = el("div", "metrics");
@@ -2360,7 +2463,7 @@
     var wrap = document.getElementById("cmp-wrap");
     wrap.textContent = "";
 
-    var active = PHASES.filter(function (p) { return entriesByPhase(p.id).length > 0; });
+    var active = statPhases().filter(function (p) { return entriesByPhase(p.id).length > 0; });
 
     if (!active.length) {
       wrap.appendChild(el("div", "empty-state", "Появится, когда будут записи."));
@@ -2469,11 +2572,6 @@
     host.appendChild(box);
   }
 
-  function phaseColor(p) {
-    if (p === "during") return "var(--mark)";
-    if (p === "after") return "var(--accent)";
-    return "var(--ink-faint)";
-  }
 
   function renderSparks() {
     var host = document.getElementById("sparks");
@@ -2517,7 +2615,7 @@
       var pts = [];
       dates.forEach(function (d, i) {
         var v = s.get(state.entries[d]);
-        if (typeof v === "number") pts.push({ i: i, v: v, phase: state.entries[d].phase || "before" });
+        if (typeof v === "number") pts.push({ i: i, v: v, phase: state.entries[d].phase || basePhase() });
       });
       if (pts.length < 2) return;
 
@@ -2528,8 +2626,10 @@
       var hd = el("div", "spark-head");
       hd.appendChild(el("span", null, s.label));
 
-      var before = pts.filter(function (p) { return p.phase === "before"; });
-      var later = pts.filter(function (p) { return p.phase !== "before"; });
+      // база — первый этап в списке, с ним и сравниваем всё остальное
+      var base = basePhase();
+      var before = pts.filter(function (p) { return p.phase === base; });
+      var later = pts.filter(function (p) { return p.phase !== base; });
       if (before.length && later.length) {
         var b = before.reduce(function (a, p) { return a + p.v; }, 0) / before.length;
         var l = later.reduce(function (a, p) { return a + p.v; }, 0) / later.length;
@@ -2595,8 +2695,8 @@
     out.push("Период: " + fullDate(dates[0]) + " — " + fullDate(dates[dates.length - 1]) + " · дней: " + dates.length);
     out.push("");
 
-    PHASES.forEach(function (p) {
-      var ds = dates.filter(function (d) { return (state.entries[d].phase || "before") === p.id; });
+    statPhases().forEach(function (p) {
+      var ds = dates.filter(function (d) { return (state.entries[d].phase || basePhase()) === p.id; });
       if (!ds.length) return;
 
       out.push("## " + p.label + " (" + ds.length + " дн.)");
@@ -2625,7 +2725,7 @@
       out.push("");
     });
 
-    var active = PHASES.filter(function (p) { return entriesByPhase(p.id).length > 0; });
+    var active = statPhases().filter(function (p) { return entriesByPhase(p.id).length > 0; });
     var heads = active.map(function (p) { return p.label; }).join(" | ");
     var seps = "|---" + active.map(function () { return "|---"; }).join("") + "|";
 
@@ -2674,8 +2774,7 @@
       out.push("");
       withFood.forEach(function (d) {
         var e = state.entries[d];
-        var ph = PHASES.filter(function (p) { return p.id === (e.phase || "before"); })[0];
-        var head = fullDate(d) + (ph ? " — " + ph.label.toLowerCase() : "");
+        var head = fullDate(d) + " — " + phaseLabel(e.phase || basePhase()).toLowerCase();
         if (e.period && e.period !== "no") head += " · менструация: " + optLabel("period", e.period).toLowerCase();
         out.push("### " + head);
         var items = [];
@@ -2738,6 +2837,7 @@
       version: 2,
       exportedAt: new Date().toISOString(),
       lastPhase: lastPhase,
+      phases: phases,
       symptoms: symptoms,
       entries: state.entries
     }, null, 2);
@@ -2880,9 +2980,12 @@
         var e = data.entries[d];
         if (e && typeof e === "object") state.entries[d] = e;
       });
+      var np = normalizePhases(data.phases);
+      if (np) phases = np;
       var ns = normalizeSymptoms(data.symptoms);
       if (ns) { symptoms = ns; meta.symV = 0; upgradeSymptoms(); }
       if (data.lastPhase) lastPhase = data.lastPhase;
+      if (phaseIndex(lastPhase) < 0) lastPhase = basePhase();
       meta.changedAt = new Date().toISOString();
       if (data.exportedAt) {
         meta.lastBackupAt = data.exportedAt;
@@ -2890,8 +2993,10 @@
         if (!have) meta.changedAt = data.exportedAt;
       }
       persist();
+      buildPhase();
       loadDate(currentDate);
       renderAll();
+      renderPhaseEditor();
       renderSymEditor();
       renderBackupStatus();
       toast("Восстановлено: " + incoming + " дн.");
@@ -2951,6 +3056,107 @@
     fsRow.hidden = !fsSupported;
     document.getElementById("btn-fs").textContent =
       fileHandle ? "Выбрать другой файл для копий" : "Писать копии автоматически";
+  }
+
+  // ---------------- редактор этапов ----------------
+
+  function phaseUsage(id) {
+    return sortedDates().filter(function (d) { return (state.entries[d].phase || basePhase()) === id; }).length;
+  }
+
+  function savePhases() {
+    persist();
+    buildPhase();
+    renderPhaseEditor();
+    renderAll();
+  }
+
+  function movePhase(id, dir) {
+    var i = phaseIndex(id), j = i + dir;
+    if (i < 0 || j < 0 || j >= phases.length) return;
+    var t = phases[i];
+    phases[i] = phases[j];
+    phases[j] = t;
+    savePhases();
+  }
+
+  function renderPhaseEditor() {
+    var host = document.getElementById("phase-editor");
+    if (!host) return;
+    host.textContent = "";
+
+    if (!phases.length) {
+      host.appendChild(el("div", "ep-empty", "Ни одного этапа. Добавьте хотя бы один."));
+      return;
+    }
+
+    phases.forEach(function (p, i) {
+      var row = el("div", "symrow");
+
+      var dot = el("span", "phase-dot");
+      dot.style.background = phaseColor(p.id);
+      row.appendChild(dot);
+
+      var inp = document.createElement("input");
+      inp.type = "text";
+      inp.className = "phase-name";
+      inp.value = p.label;
+      inp.maxLength = 32;
+      inp.setAttribute("aria-label", "Название этапа");
+      inp.addEventListener("input", function () {
+        p.label = inp.value;
+        commitSoon();          // имя сохраняем с задержкой, чтобы не писать на каждую букву
+      });
+      inp.addEventListener("blur", function () {
+        if (!inp.value.trim()) { inp.value = p.label = "Без названия"; }
+        persist();
+        buildPhase();
+        renderAll();
+      });
+      row.appendChild(inp);
+
+      var used = phaseUsage(p.id);
+      if (used) row.appendChild(el("span", "used", used + " дн."));
+
+      function ib(txt, title, cls, fn, off) {
+        var b = el("button", "ib" + (cls ? " " + cls : ""), txt);
+        b.type = "button";
+        b.title = title;
+        b.setAttribute("aria-label", title);
+        if (off) b.disabled = true; else b.addEventListener("click", fn);
+        row.appendChild(b);
+      }
+
+      ib("↑", "Выше", null, function () { movePhase(p.id, -1); }, i === 0);
+      ib("↓", "Ниже", null, function () { movePhase(p.id, 1); }, i === phases.length - 1);
+      ib("×", "Удалить этап", "del", function () {
+        // считаем заново: дни могли добавиться уже после отрисовки списка
+        var n = phaseUsage(p.id);
+        if (n) { toast("За этим этапом " + n + " дн. — его можно только переименовать"); return; }
+        if (phases.length < 2) { toast("Нужен хотя бы один этап"); return; }
+        if (!confirm("Удалить этап «" + p.label + "»?")) return;
+        phases = phases.filter(function (x) { return x.id !== p.id; });
+        if (phaseIndex(lastPhase) < 0) lastPhase = basePhase();
+        if (draft.phase === p.id) { draft.phase = lastPhase; commit(); }
+        savePhases();
+      });
+
+      host.appendChild(row);
+    });
+  }
+
+  function addPhase() {
+    var inp = document.getElementById("new-phase");
+    var name = inp.value.trim();
+    if (!name) { inp.focus(); return; }
+    if (phases.some(function (p) { return p.label.toLowerCase() === name.toLowerCase(); })) {
+      toast("Такой этап уже есть");
+      return;
+    }
+    phases.push({ id: "p" + Date.now().toString(36) + "-" + (++epSeq).toString(36), label: name });
+    inp.value = "";
+    savePhases();
+    toast("Этап «" + name + "» добавлен");
   }
 
   // ---------------- редактор списка симптомов ----------------
@@ -3080,7 +3286,7 @@
     }
     if (v === "history") renderHistory();
     if (v === "summary") renderSummary();
-    if (v === "data") { renderBackupStatus(); renderSymEditor(); }
+    if (v === "data") { renderBackupStatus(); renderPhaseEditor(); renderSymEditor(); }
     updateMast();
   }
 
@@ -3154,6 +3360,11 @@
     ev.target.value = "";
   });
 
+  document.getElementById("btn-add-phase").addEventListener("click", addPhase);
+  document.getElementById("new-phase").addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter") { ev.preventDefault(); addPhase(); }
+  });
+
   document.getElementById("btn-add-sym").addEventListener("click", function () { addSymptom("new-sym", "gut"); });
   document.getElementById("new-sym").addEventListener("keydown", function (ev) {
     if (ev.key === "Enter") { ev.preventDefault(); addSymptom("new-sym", "gut"); }
@@ -3190,6 +3401,7 @@
   loadDate(todayISO());
   renderAll();
   renderBackupStatus();
+  renderPhaseEditor();
   renderSymEditor();
   restoreHandle();
 })();
