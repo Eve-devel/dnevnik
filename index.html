@@ -1132,6 +1132,7 @@
         <button type="button" id="btn-restore">Восстановить из файла</button>
       </div>
       <div class="btnrow" style="padding-top:0" id="fs-row" hidden>
+        <button type="button" id="btn-fs-resume" hidden>Возобновить запись в файл</button>
         <button type="button" id="btn-fs">Писать копии автоматически</button>
       </div>
       <p class="note" style="margin:0 14px 14px">Записи хранятся в памяти браузера — если очистить данные сайтов или переустановить браузер, они исчезнут. Копия в файл кладётся в «Загрузки» телефона и переживает любую чистку. Приложение само напомнит, если копии нет больше суток.</p>
@@ -2871,7 +2872,8 @@
 
   // --- автоматическая запись в выбранный файл (если браузер это умеет) ---
 
-  var fileHandle = null;
+  var fileHandle = null;      // файл, в который пишем прямо сейчас
+  var pendingHandle = null;   // файл выбран, но браузер отозвал разрешение после перезапуска
   var fsSupported = (typeof window.showSaveFilePicker === "function");
 
   var IDB_NAME = "gut-diary-fs", IDB_STORE = "handles";
@@ -2910,6 +2912,7 @@
       types: [{ description: "Резервная копия дневника", accept: { "application/json": [".json"] } }]
     }).then(function (h) {
       fileHandle = h;
+      pendingHandle = null;
       saveHandle(h);
       return writeToFile(true);
     }).catch(function (e) {
@@ -2930,8 +2933,32 @@
       if (loud) toast("Копия пишется в файл автоматически");
       return true;
     }).catch(function () {
-      if (loud) toast("Нет доступа к файлу — выберите его заново");
+      // доступ отозвали — файл помним, но пишем только после подтверждения
+      pendingHandle = fileHandle;
+      fileHandle = null;
+      renderBackupStatus();
+      if (loud) toast("Нет доступа к файлу — нажмите «Возобновить запись»");
       return false;
+    });
+  }
+
+  // разрешение спрашиваем по нажатию: без жеста браузер откажет
+  function resumeFileBackup() {
+    var h = pendingHandle;
+    if (!h) return;
+    if (!h.requestPermission) {
+      fileHandle = h; pendingHandle = null;
+      writeToFile(true);
+      return;
+    }
+    h.requestPermission({ mode: "readwrite" }).then(function (p) {
+      if (p !== "granted") { toast("Без доступа к файлу копии писаться не будут"); return; }
+      fileHandle = h;
+      pendingHandle = null;
+      renderBackupStatus();
+      writeToFile(true);
+    }).catch(function () {
+      toast("Не удалось получить доступ к файлу");
     });
   }
 
@@ -2946,11 +2973,17 @@
     if (!fsSupported) return;
     loadHandle(function (h) {
       if (!h) return;
-      if (!h.queryPermission) { fileHandle = h; renderBackupStatus(); return; }
+      if (!h.queryPermission) { fileHandle = h; renderBackupStatus(); backupOnOpen(); return; }
       h.queryPermission({ mode: "readwrite" }).then(function (p) {
-        if (p === "granted") { fileHandle = h; renderBackupStatus(); }
+        if (p === "granted") { fileHandle = h; renderBackupStatus(); backupOnOpen(); }
+        else { pendingHandle = h; renderBackupStatus(); }   // предложим возобновить кнопкой
       }).catch(function () {});
     });
+  }
+
+  // одна запись при открытии, если с прошлой копии что-то менялось
+  function backupOnOpen() {
+    if (fileHandle && backupIsStale()) writeToFile(false);
   }
 
   // --- восстановление из файла ---
@@ -3050,12 +3083,15 @@
     row("Записей в дневнике", n ? n + " дн." : "нет");
     row("Последняя копия", backupAgeText(), backupIsStale() ? "bad-v" : "ok-v");
     if (fileHandle) row("Автоматически в файл", (fileHandle.name || "выбранный файл"), "ok-v");
+    else if (pendingHandle) row("Автоматически в файл", "нужно разрешение", "bad-v");
 
     document.getElementById("backup-tag").textContent = backupIsStale() ? "пора сохранить" : "в порядке";
     var fsRow = document.getElementById("fs-row");
     fsRow.hidden = !fsSupported;
+    document.getElementById("btn-fs-resume").hidden = !(pendingHandle && !fileHandle);
     document.getElementById("btn-fs").textContent =
-      fileHandle ? "Выбрать другой файл для копий" : "Писать копии автоматически";
+      fileHandle ? "Выбрать другой файл для копий" :
+      pendingHandle ? "Выбрать другой файл" : "Писать копии автоматически";
   }
 
   // ---------------- редактор этапов ----------------
@@ -3350,6 +3386,7 @@
   document.getElementById("btn-json").addEventListener("click", downloadJSON);
   document.getElementById("banner-btn").addEventListener("click", downloadJSON);
   document.getElementById("btn-fs").addEventListener("click", pickBackupFile);
+  document.getElementById("btn-fs-resume").addEventListener("click", resumeFileBackup);
 
   document.getElementById("btn-restore").addEventListener("click", function () {
     document.getElementById("file-input").click();
