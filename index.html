@@ -786,6 +786,10 @@
   .meal-add.med:hover { border-color: var(--good); background: none; }
   .meal-add.med .n { color: var(--good); }
 
+  .meal-add.stool .plus { background: var(--mark-soft); color: var(--mark); }
+  .meal-add.stool:hover { border-color: var(--mark); background: var(--mark-soft); }
+  .meal-add.stool .n { color: var(--mark); }
+
   .miss-toggle {
     display: flex;
     align-items: center;
@@ -1068,7 +1072,15 @@
 
     <section class="block">
       <div class="block-head"><h2>Стул</h2></div>
-      <div class="block-body" id="grp-stool"></div>
+      <div class="block-body">
+        <button type="button" class="meal-add stool" id="stool-add">
+          <span class="plus">+</span><span>Добавить стул</span><span class="n" id="stool-n"></span>
+        </button>
+        <button type="button" class="miss-toggle" id="stool-none" aria-pressed="false">
+          <span class="box" id="stool-none-box"></span><span>Стула не было за сутки</span>
+        </button>
+        <div class="ep-list" id="stool-list"></div>
+      </div>
     </section>
 
     <section class="block">
@@ -1248,10 +1260,7 @@
       ]},
       { key: "rested", type: "scale", name: "Выспалась", hint: "0 — разбита, 10 — отдохнула" }
     ],
-    stool: [
-      { key: "stoolCount", type: "num", name: "Стул за день", hint: "сколько раз", min: 0, max: 15, step: 1 },
-      { key: "bristol", type: "bristol", name: "Бристольская шкала", hint: "какой был стул" }
-    ],
+    stool: [],
     misc: [
       { key: "period", type: "choice", name: "Менструация", hint: "кровотечение отмены на КОК", options: [
         { v: "start", l: "Первый день" }, { v: "yes", l: "Идёт" },
@@ -1282,9 +1291,7 @@
 
   var DAILY_METRICS = [
     { key: "sleepHours", label: "Часов сна",     invert: null },
-    { key: "rested",     label: "Выспалась",     invert: true },
-    { key: "stoolCount", label: "Стул, раз",     invert: null },
-    { key: "bristol",    label: "Бристоль",      invert: null }
+    { key: "rested",     label: "Выспалась",     invert: true }
   ];
 
   var BUCKETS = [
@@ -1873,6 +1880,143 @@
     return edit;
   }
 
+  // ---------------- стул ----------------
+
+  var openStool = null;
+
+  function stoolsOf() {
+    if (!draft.stools) draft.stools = [];
+    return draft.stools;
+  }
+
+  function bristolDef(v) {
+    for (var i = 0; i < BRISTOL.length; i++) if (BRISTOL[i].v === v) return BRISTOL[i];
+    return null;
+  }
+
+  function stoolText(s) {
+    var d = bristolDef(s.bristol);
+    return d ? "тип " + d.v + " — " + d.l.toLowerCase() : "тип не выбран";
+  }
+
+  function toggleNoStool() {
+    if (!draft.noStool && stoolsOf().length) {
+      toast("За этот день уже записан стул");
+      return;
+    }
+    if (draft.noStool) delete draft.noStool; else draft.noStool = true;
+    renderStools();
+    commit();
+  }
+
+  function addStool() {
+    delete draft.noStool;   // раз есть запись, отметка «не было» больше не верна
+    var s = { id: "s" + Date.now() + "-" + (++epSeq), time: nowTime(), bristol: null };
+    stoolsOf().push(s);
+    openStool = s.id;
+    renderStools();
+    commit();
+    toast("Стул — " + s.time);
+  }
+
+  function renderStools() {
+    var host = document.getElementById("stool-list");
+    var list = stoolsOf().slice().sort(function (a, b) { return timeToMin(a.time) - timeToMin(b.time); });
+
+    document.getElementById("stool-n").textContent = list.length ? String(list.length) : "";
+    host.textContent = "";
+
+    document.getElementById("stool-none").setAttribute("aria-pressed", draft.noStool ? "true" : "false");
+    document.getElementById("stool-none-box").textContent = draft.noStool ? "✓" : "";
+
+    if (!list.length) {
+      host.appendChild(el("div", "ep-empty", draft.noStool
+        ? "Отмечено: за сутки стула не было."
+        : "Пока ничего не записано. Отмечайте каждый раз отдельно."));
+      return;
+    }
+
+    list.forEach(function (s) {
+      var row = el("div", "ep");
+      var main = el("button", "ep-main");
+      main.type = "button";
+      main.appendChild(el("span", "t", s.time));
+
+      var d = bristolDef(s.bristol);
+      var dot = el("span", "dot");
+      dot.style.background = d ? bristolColor(d) : "var(--rule-strong)";
+      main.appendChild(dot);
+
+      main.appendChild(el("span", "w" + (d ? "" : " none"), stoolText(s)));
+      main.appendChild(el("span", "chev", openStool === s.id ? "▴" : "▾"));
+
+      main.addEventListener("click", function () {
+        openStool = (openStool === s.id) ? null : s.id;
+        renderStools();
+      });
+      row.appendChild(main);
+
+      if (openStool === s.id) row.appendChild(stoolEditor(s));
+      host.appendChild(row);
+    });
+  }
+
+  function bristolColor(d) {
+    if (d.cls === "bristol-c") return "var(--warn)";
+    if (d.cls === "bristol-l") return "var(--bad)";
+    return "var(--good)";
+  }
+
+  function stoolEditor(s) {
+    var edit = el("div", "ep-edit");
+
+    var tr = el("div", "ep-edit-row");
+    var lab = el("label", null, "Время");
+    lab.htmlFor = "st-" + s.id;
+    var ti = document.createElement("input");
+    ti.type = "time";
+    ti.id = "st-" + s.id;
+    ti.value = s.time;
+    ti.addEventListener("change", function () {
+      if (ti.value) { s.time = ti.value; renderStools(); commit(); }
+    });
+    tr.appendChild(lab);
+    tr.appendChild(ti);
+    edit.appendChild(tr);
+
+    edit.appendChild(el("span", "lbl", "Бристольская шкала"));
+    var grid = el("div", "chips bristol-grid");
+    grid.setAttribute("role", "group");
+    grid.setAttribute("aria-label", "Бристольская шкала");
+    BRISTOL.forEach(function (o) {
+      var b = el("button", o.cls);
+      b.type = "button";
+      b.dataset.v = String(o.v);
+      b.setAttribute("aria-pressed", s.bristol === o.v ? "true" : "false");
+      b.appendChild(el("b", null, String(o.v)));
+      b.appendChild(document.createTextNode(o.l));
+      b.addEventListener("click", function () {
+        s.bristol = (s.bristol === o.v) ? null : o.v;
+        renderStools();
+        commit();
+      });
+      grid.appendChild(b);
+    });
+    edit.appendChild(grid);
+
+    var del = el("button", "ep-del", "Удалить эту запись");
+    del.type = "button";
+    del.addEventListener("click", function () {
+      draft.stools = stoolsOf().filter(function (x) { return x.id !== s.id; });
+      openStool = null;
+      renderStools();
+      commit();
+    });
+    edit.appendChild(del);
+
+    return edit;
+  }
+
   // ---------------- лекарства ----------------
 
   var openMed = null;
@@ -2207,19 +2351,22 @@
     currentDate = iso;
     document.getElementById("date").value = iso;
     var e = state.entries[iso];
-    draft = e ? JSON.parse(JSON.stringify(e)) : { phase: lastPhase, episodes: [], meals: [], meds: [] };
+    draft = e ? JSON.parse(JSON.stringify(e)) : { phase: lastPhase, episodes: [], meals: [], meds: [], stools: [] };
     if (!draft.phase) draft.phase = lastPhase;
     if (!draft.episodes) draft.episodes = [];
     if (!draft.meals) draft.meals = [];
     if (!draft.meds) draft.meds = [];
+    if (!draft.stools) draft.stools = [];
     openEpisode = null;
     openMeal = null;
     openMed = null;
+    openStool = null;
     syncers.forEach(function (f) { f(); });
     syncPhase();
     renderEpisodes();
     renderMeals();
     renderMeds();
+    renderStools();
     document.getElementById("save-note").textContent =
       "Отмечайте симптомы в течение дня, вечером допишите сон и стул";
     setAutosave(e ? "saved" : "idle");
@@ -2232,8 +2379,9 @@
     if ((draft.episodes || []).length) return false;
     if ((draft.meals || []).length) return false;
     if ((draft.meds || []).length) return false;
+    if ((draft.stools || []).length) return false;
     return !Object.keys(draft).some(function (k) {
-      return k !== "phase" && k !== "episodes" && k !== "meals" && k !== "meds" &&
+      return k !== "phase" && k !== "episodes" && k !== "meals" && k !== "meds" && k !== "stools" &&
              draft[k] != null && draft[k] !== "";
     });
   }
@@ -2322,6 +2470,50 @@
     });
     if (!vals.length) return null;
     return vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
+  }
+
+  // старые записи хранили число за день и один тип; новые — журнал с временем
+  // 0 — только если день прямо отмечен как «стула не было»;
+  // пустой журнал означает «не записано» и в средние не идёт
+  function stoolCountOf(e) {
+    if (e.noStool) return 0;
+    if (e.stools && e.stools.length) return e.stools.length;
+    if (e.stools) return null;
+    return typeof e.stoolCount === "number" ? e.stoolCount : null;
+  }
+
+  function countNoStool(list) {
+    return list.filter(function (e) { return !!e.noStool; }).length;
+  }
+
+  function bristolsOf(e) {
+    if (e.stools) {
+      return e.stools.map(function (s) { return s.bristol; })
+        .filter(function (v) { return typeof v === "number"; });
+    }
+    return typeof e.bristol === "number" ? [e.bristol] : [];
+  }
+
+  function avgStools(list) {
+    var vals = list.map(stoolCountOf).filter(function (v) { return typeof v === "number"; });
+    if (!vals.length) return null;
+    return vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
+  }
+
+  function avgBristol(list) {
+    var all = [];
+    list.forEach(function (e) { all = all.concat(bristolsOf(e)); });
+    if (!all.length) return null;
+    return all.reduce(function (a, b) { return a + b; }, 0) / all.length;
+  }
+
+  // сколько раз стул был жидким (6–7 по Бристолю) — для врача это главное число
+  function looseCount(list) {
+    var n = 0;
+    list.forEach(function (e) {
+      bristolsOf(e).forEach(function (v) { if (v >= 6) n++; });
+    });
+    return n;
   }
 
   function avgMeals(list) {
@@ -2442,7 +2634,14 @@
       var skipped = (e.meds || []).filter(function (x) { return x.missed; }).length;
       add("лек", taken || null);
       add("сон", e.sleepHours != null ? fmt(e.sleepHours, 1) + "ч" : null);
-      if (e.bristol != null) add("бристоль", e.bristol);
+      if (e.noStool) add("стул", "не было");
+      else {
+        var sc = stoolCountOf(e);
+        if (sc) {
+          var br = bristolsOf(e);
+          add("стул", sc + (br.length ? " (" + br.join(",") + ")" : ""));
+        }
+      }
       if (e.period && e.period !== "no") add("менстр", periodShort(e.period));
       if (skipped) m.appendChild(el("span", "flag", "пропуск" + (skipped > 1 ? " ×" + skipped : "")));
       var atk = epCount(e, "attack");
@@ -2530,6 +2729,12 @@
         if (has) dataRow(s.label, function (l) { return fmt(avgInt(l, s.id)); });
       });
     }
+
+    groupRow("Стул");
+    dataRow("Раз в день", function (l) { return fmt(avgStools(l)); });
+    dataRow("Дней без стула", function (l) { return countNoStool(l) + " / " + l.length; });
+    dataRow("Бристоль, в среднем", function (l) { return fmt(avgBristol(l)); });
+    dataRow("Жидкий (6–7), всего раз", function (l) { return String(looseCount(l)); });
 
     groupRow("Ночь, сон, день");
     dataRow("Ночей с болью", function (l) { return countNights(l) + " / " + l.length; });
@@ -2718,7 +2923,7 @@
           epTxt,
           e.sleepHours == null ? "" : fmt(e.sleepHours, 1),
           e.nightPain ? optLabel("nightPain", e.nightPain) : "",
-          c(e.rested), c(e.stoolCount), c(e.bristol),
+          c(e.rested), e.noStool ? "не было" : c(stoolCountOf(e)), bristolsOf(e).join(", "),
           e.period ? optLabel("period", e.period) : "",
           (e.notes || "").replace(/\|/g, "/").replace(/\n/g, " ")
         ].join(" | ") + " |");
@@ -2757,6 +2962,14 @@
       });
     }
 
+    out.push("| **Стул** | " + active.map(function () { return ""; }).join(" | ") + " |");
+    out.push("| Раз в день | " + active.map(function (p) { return fmt(avgStools(entriesByPhase(p.id))); }).join(" | ") + " |");
+    out.push("| Дней без стула | " + active.map(function (p) {
+      var l = entriesByPhase(p.id); return countNoStool(l) + "/" + l.length;
+    }).join(" | ") + " |");
+    out.push("| Бристоль, в среднем | " + active.map(function (p) { return fmt(avgBristol(entriesByPhase(p.id))); }).join(" | ") + " |");
+    out.push("| Жидкий (6–7), всего раз | " + active.map(function (p) { return looseCount(entriesByPhase(p.id)); }).join(" | ") + " |");
+
     out.push("| **Ночь, сон, день** | " + active.map(function () { return ""; }).join(" | ") + " |");
     out.push("| Ночей с болью | " + active.map(function (p) {
       var l = entriesByPhase(p.id); return countNights(l) + "/" + l.length;
@@ -2767,16 +2980,17 @@
 
     var withFood = dates.filter(function (d) {
       var e = state.entries[d];
-      return (e.meals || []).length || (e.meds || []).length;
+      return (e.meals || []).length || (e.meds || []).length || (e.stools || []).length || e.noStool;
     });
     if (withFood.length) {
       out.push("");
-      out.push("## Еда, лекарства и симптомы по времени");
+      out.push("## Еда, лекарства, стул и симптомы по времени");
       out.push("");
       withFood.forEach(function (d) {
         var e = state.entries[d];
         var head = fullDate(d) + " — " + phaseLabel(e.phase || basePhase()).toLowerCase();
         if (e.period && e.period !== "no") head += " · менструация: " + optLabel("period", e.period).toLowerCase();
+        if (e.noStool) head += " · стула не было";
         out.push("### " + head);
         var items = [];
         (e.meals || []).forEach(function (m) {
@@ -2784,6 +2998,9 @@
         });
         (e.meds || []).forEach(function (m) {
           items.push({ t: m.time, s: (m.missed ? "ПРОПУСК: " : "лекарство: ") + (medSummary(m) || "без названия") });
+        });
+        (e.stools || []).forEach(function (s) {
+          items.push({ t: s.time, s: "стул: " + stoolText(s) });
         });
         (e.episodes || []).forEach(function (x) {
           items.push({ t: x.time, s: shortSym(x.sym) + (x.int != null ? " " + x.int + "/10" : "") });
@@ -3373,7 +3590,6 @@
   document.getElementById("theme-btn").addEventListener("click", cycleTheme);
   buildPhase();
   buildGroup("grp-sleep", FIELDS.sleep);
-  buildGroup("grp-stool", FIELDS.stool);
   buildGroup("grp-misc", FIELDS.misc);
 
   document.getElementById("date").addEventListener("change", function (ev) {
@@ -3382,6 +3598,8 @@
   document.getElementById("btn-today").addEventListener("click", function () { loadDate(todayISO()); });
   document.getElementById("meal-add").addEventListener("click", addMeal);
   document.getElementById("med-add").addEventListener("click", addMed);
+  document.getElementById("stool-add").addEventListener("click", addStool);
+  document.getElementById("stool-none").addEventListener("click", toggleNoStool);
   document.getElementById("btn-copy").addEventListener("click", copyReport);
   document.getElementById("btn-json").addEventListener("click", downloadJSON);
   document.getElementById("banner-btn").addEventListener("click", downloadJSON);
