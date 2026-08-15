@@ -826,6 +826,90 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* ---------- КБЖУ ---------- */
+
+  .nutri-row {
+    margin-top: 8px;
+    padding: 8px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--surface-2);
+  }
+  /* растягиваем по высоте: кнопка должна совпадать с полем ввода */
+  .nutri-head { display: flex; gap: 6px; align-items: stretch; }
+  /* специфичность выше общего правила .ep-edit input[type="text"], иначе остаётся его margin-top */
+  .nutri-row .nutri-head input[type="text"] { flex: 1 1 auto; min-width: 0; margin-top: 0; }
+
+  .nutri-mode { display: flex; gap: 6px; margin-top: 8px; }
+  .nutri-mode button {
+    flex: 1 1 0;
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid var(--rule-strong);
+    background: var(--surface);
+    color: var(--ink-soft);
+    border-radius: 4px;
+    font-family: var(--font-ui);
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+  .nutri-mode button[aria-pressed="true"] {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .nutri-head .ib {
+    flex: 0 0 auto;
+    width: 40px;
+    align-self: stretch;   /* по высоте вровень с полем ввода */
+    display: grid; place-items: center;
+    border: 1px solid var(--rule-strong);
+    background: var(--surface);
+    color: var(--ink-faint);
+    border-radius: 4px;
+    font-family: var(--font-ui);
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+  .nutri-head .ib:hover { border-color: var(--bad); color: var(--bad); }
+
+  .nutri-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .nutri-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .nutri-grid input[type="number"] {
+    width: 100%;
+    padding: 8px 4px;
+    text-align: center;
+    font-size: 0.875rem;
+  }
+
+  .nutri-add {
+    width: 100%;
+    margin-top: 8px;
+    padding: 9px;
+    border: 1px dashed var(--rule-strong);
+    background: none;
+    color: var(--ink-soft);
+    border-radius: 4px;
+    font-family: var(--font-ui);
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+  .nutri-add:hover { border-color: var(--accent); color: var(--accent); border-style: solid; }
+
   .qty-amount { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
   .qty-amount input { flex: 1 1 auto; }
   .qty-amount .unit { flex: 0 0 auto; font-size: 0.8125rem; color: var(--ink-soft); }
@@ -1051,6 +1135,7 @@
           <span class="plus">+</span><span>Добавить приём пищи</span><span class="n" id="meal-n"></span>
         </button>
         <div class="ep-list" id="meal-list"></div>
+        <datalist id="product-names"></datalist>
       </div>
     </section>
 
@@ -1722,6 +1807,79 @@
     return what || q || "";
   }
 
+  // Когда КБЖУ известен сразу на всё блюдо, а не по продуктам.
+  // В подсказки не попадает: у каждого блюда числа свои, подставлять их вслепую нельзя.
+  var WHOLE_DISH = "Блюдо целиком";
+
+  var NUTRI_FIELDS = [
+    { key: "kcal", label: "ккал" },
+    { key: "prot", label: "белки" },
+    { key: "fat",  label: "жиры" },
+    { key: "carb", label: "углев" }
+  ];
+
+  function nutriOf(m) {
+    if (!m.nutri) m.nutri = [];
+    return m.nutri;
+  }
+
+  function wholeOf(m) {
+    if (!m.whole) m.whole = {};
+    return m.whole;
+  }
+
+  function hasNutri(obj) {
+    return NUTRI_FIELDS.some(function (f) { return typeof obj[f.key] === "number"; });
+  }
+
+  // строка для отчёта: либо блюдо целиком, либо перечень продуктов
+  function nutriReport(m) {
+    if (m.mode === "whole") {
+      var w = m.whole || {};
+      return hasNutri(w) ? "блюдо целиком " + NUTRI_FIELDS.map(function (f) {
+        return typeof w[f.key] === "number" ? num(w[f.key]) : "—";
+      }).join("/") : "";
+    }
+    var rows = (m.nutri || []).filter(function (n) {
+      return (n.name || "").trim() || hasNutri(n);
+    });
+    return rows.length ? rows.map(nutriText).join("; ") : "";
+  }
+
+  // продукты, которые уже вводили: имя → последние введённые значения
+  function knownProducts() {
+    var seen = {}, out = [];
+    sortedDates().reverse().forEach(function (d) {
+      (state.entries[d].meals || []).forEach(function (m) {
+        (m.nutri || []).forEach(function (n) {
+          var name = (n.name || "").trim();
+          if (!name || name === WHOLE_DISH || seen[name.toLowerCase()]) return;
+          seen[name.toLowerCase()] = n;
+          out.push(n);
+        });
+      });
+    });
+    return out.slice(0, 40);
+  }
+
+  function syncProductList() {
+    var dl = document.getElementById("product-names");
+    dl.textContent = "";
+    knownProducts().forEach(function (n) {
+      var o = document.createElement("option");
+      o.value = n.name;
+      dl.appendChild(o);
+    });
+  }
+
+  function nutriText(n) {
+    var name = (n.name || "").trim() || "без названия";
+    var vals = NUTRI_FIELDS.map(function (f) {
+      return typeof n[f.key] === "number" ? num(n[f.key]) : "—";
+    });
+    return name + " " + vals.join("/");
+  }
+
   // для отчёта: к блюду добавляем состав, если он записан
   function mealFull(m) {
     var s = mealSummary(m) || "без описания";
@@ -1750,6 +1908,7 @@
 
     document.getElementById("meal-n").textContent = list.length ? String(list.length) : "";
     host.textContent = "";
+    syncProductList();
 
     if (!list.length) {
       host.appendChild(el("div", "ep-empty", "Пока ничего не записано. Добавляйте каждый приём пищи и перекус."));
@@ -1779,6 +1938,71 @@
       if (openMeal === m.id) row.appendChild(mealEditor(m));
       host.appendChild(row);
     });
+  }
+
+  function nutriRow(m, n) {
+    var box = el("div", "nutri-row");
+
+    var head = el("div", "nutri-head");
+    var name = document.createElement("input");
+    name.type = "text";
+    name.value = n.name || "";
+    name.placeholder = "Продукт";
+    name.setAttribute("list", "product-names");
+    name.setAttribute("aria-label", "Название продукта");
+    name.addEventListener("input", function () { n.name = name.value; commitSoon(); });
+    // знакомый продукт подставляем целиком, но только в пустые поля
+    name.addEventListener("change", function () {
+      var known = knownProducts().filter(function (k) {
+        return k.name.toLowerCase() === name.value.trim().toLowerCase();
+      })[0];
+      if (!known) return;
+      var empty = NUTRI_FIELDS.every(function (f) { return typeof n[f.key] !== "number"; });
+      if (!empty) return;
+      NUTRI_FIELDS.forEach(function (f) { if (typeof known[f.key] === "number") n[f.key] = known[f.key]; });
+      renderMeals();
+      commit();
+      toast("Значения подставлены из прошлой записи");
+    });
+    head.appendChild(name);
+
+    var del = el("button", "ib", "×");
+    del.type = "button";
+    del.title = "Убрать продукт";
+    del.setAttribute("aria-label", "Убрать продукт");
+    del.addEventListener("click", function () {
+      m.nutri = nutriOf(m).filter(function (x) { return x.id !== n.id; });
+      renderMeals();
+      commit();
+    });
+    head.appendChild(del);
+    box.appendChild(head);
+
+    box.appendChild(nutriGrid(n));
+    return box;
+  }
+
+  // четыре поля К/Б/Ж/У, привязанные к любому объекту-хранилищу
+  function nutriGrid(obj) {
+    var grid = el("div", "nutri-grid");
+    NUTRI_FIELDS.forEach(function (f) {
+      var lab = document.createElement("label");
+      lab.appendChild(document.createTextNode(f.label));
+      var inp = document.createElement("input");
+      inp.type = "number";
+      inp.min = 0;
+      inp.step = f.key === "kcal" ? 1 : 0.1;
+      inp.inputMode = "decimal";
+      inp.value = typeof obj[f.key] === "number" ? obj[f.key] : "";
+      inp.setAttribute("aria-label", f.label + " на 100 г");
+      inp.addEventListener("input", function () {
+        if (inp.value === "") delete obj[f.key]; else obj[f.key] = Number(inp.value);
+        commitSoon();
+      });
+      lab.appendChild(inp);
+      grid.appendChild(lab);
+    });
+    return grid;
   }
 
   function mealEditor(m) {
@@ -1865,6 +2089,42 @@
       free.setAttribute("aria-label", "Количество своими словами");
       free.addEventListener("input", function () { m.qty.text = free.value; commitSoon(); });
       edit.appendChild(free);
+    }
+
+    edit.appendChild(el("span", "lbl", "КБЖУ на 100 г"));
+
+    var modes = el("div", "nutri-mode");
+    modes.setAttribute("role", "group");
+    modes.setAttribute("aria-label", "Как записать КБЖУ");
+    [{ v: "products", l: "По продуктам" }, { v: "whole", l: "Блюдо целиком" }].forEach(function (o) {
+      var b = el("button", null, o.l);
+      b.type = "button";
+      b.setAttribute("aria-pressed", (m.mode === "whole" ? "whole" : "products") === o.v ? "true" : "false");
+      b.addEventListener("click", function () {
+        if (o.v === "whole") m.mode = "whole"; else delete m.mode;
+        renderMeals();
+        commit();
+      });
+      modes.appendChild(b);
+    });
+    edit.appendChild(modes);
+
+    if (m.mode === "whole") {
+      // числа блюда лежат отдельно от продуктов, поэтому переключение ничего не стирает
+      var box = el("div", "nutri-row");
+      box.appendChild(nutriGrid(wholeOf(m)));
+      edit.appendChild(box);
+    } else {
+      nutriOf(m).forEach(function (n) { edit.appendChild(nutriRow(m, n)); });
+
+      var addN = el("button", "nutri-add", "+ Продукт");
+      addN.type = "button";
+      addN.addEventListener("click", function () {
+        nutriOf(m).push({ id: "n" + Date.now() + "-" + (++epSeq), name: "" });
+        renderMeals();
+        commit();
+      });
+      edit.appendChild(addN);
     }
 
     var del = el("button", "ep-del", "Удалить этот приём пищи");
@@ -2986,6 +3246,8 @@
       out.push("");
       out.push("## Еда, лекарства, стул и симптомы по времени");
       out.push("");
+      out.push("КБЖУ указан на 100 г продукта в порядке: ккал/белки/жиры/углеводы.");
+      out.push("");
       withFood.forEach(function (d) {
         var e = state.entries[d];
         var head = fullDate(d) + " — " + phaseLabel(e.phase || basePhase()).toLowerCase();
@@ -2994,7 +3256,10 @@
         out.push("### " + head);
         var items = [];
         (e.meals || []).forEach(function (m) {
-          items.push({ t: m.time, s: "еда: " + mealFull(m) });
+          var line = "еда: " + mealFull(m);
+          var n = nutriReport(m);
+          if (n) line += "; КБЖУ/100 г — " + n;
+          items.push({ t: m.time, s: line });
         });
         (e.meds || []).forEach(function (m) {
           items.push({ t: m.time, s: (m.missed ? "ПРОПУСК: " : "лекарство: ") + (medSummary(m) || "без названия") });
