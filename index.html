@@ -1006,8 +1006,6 @@
     border-bottom: 1px solid var(--rule);
   }
   .symrow:last-child { border-bottom: none; }
-  .symrow .nm { flex: 1 1 auto; font-size: 0.875rem; }
-  .symrow.off .nm { color: var(--ink-faint); text-decoration: line-through; }
   .symrow .used {
     flex: 0 0 auto;
     font-family: var(--font-data);
@@ -1038,7 +1036,8 @@
     border-radius: 2px;
     background: var(--rule-strong);
   }
-  .symrow input.phase-name {
+  /* название прямо в строке — и у этапов, и у отметок */
+  .symrow input.row-name {
     flex: 1 1 auto;
     min-width: 0;
     padding: 8px 10px;
@@ -1049,8 +1048,9 @@
     font-family: var(--font-ui);
     font-size: 0.875rem;
   }
-  .symrow input.phase-name:hover { border-color: var(--rule); }
-  .symrow input.phase-name:focus { border-color: var(--accent); background: var(--surface); }
+  .symrow input.row-name:hover { border-color: var(--rule); }
+  .symrow input.row-name:focus { border-color: var(--accent); background: var(--surface); }
+  .symrow.off input.row-name { color: var(--ink-faint); text-decoration: line-through; }
 
   .addsym { display: flex; gap: 8px; padding-top: 12px; }
   .addsym input[type="text"] {
@@ -3617,7 +3617,7 @@
 
       var inp = document.createElement("input");
       inp.type = "text";
-      inp.className = "phase-name";
+      inp.className = "row-name";
       inp.value = p.label;
       inp.maxLength = 32;
       inp.setAttribute("aria-label", "Название этапа");
@@ -3685,6 +3685,14 @@
     return n;
   }
 
+  // Короткая подпись для лент и графиков. Если прежняя короткая всё ещё начинает
+  // новое название («Боль» в «Боль в животе слева») — оставляем её, иначе режем заново.
+  function shortFor(label, prev) {
+    var l = label.trim();
+    if (prev && l.toLowerCase().indexOf(prev.toLowerCase()) === 0 && prev.length <= l.length) return prev;
+    return l.length > 12 ? l.slice(0, 11).replace(/\s+$/, "") + "…" : l;
+  }
+
   function saveSymptoms() {
     persist();
     renderSymEditor();
@@ -3721,7 +3729,27 @@
 
     list.forEach(function (s, i) {
       var row = el("div", "symrow" + (s.off ? " off" : ""));
-      row.appendChild(el("span", "nm", s.label));
+
+      var inp = document.createElement("input");
+      inp.type = "text";
+      inp.className = "row-name";
+      inp.value = s.label;
+      inp.maxLength = 28;
+      inp.setAttribute("aria-label", "Название отметки");
+      inp.addEventListener("input", function () {
+        s.label = inp.value;
+        s.short = shortFor(s.label, s.short);
+        commitSoon();          // с задержкой, чтобы не писать на каждую букву
+      });
+      inp.addEventListener("blur", function () {
+        if (!inp.value.trim()) {
+          s.label = "Без названия";
+          s.short = s.label;
+          inp.value = s.label;
+        }
+        saveSymptoms();
+      });
+      row.appendChild(inp);
 
       var used = usageCount(s.id);
       if (used) row.appendChild(el("span", "used", used + " отм."));
@@ -3768,7 +3796,7 @@
     var dup = symptoms.some(function (s) { return s.label.toLowerCase() === name.toLowerCase(); });
     if (dup) { toast("Такая отметка уже есть"); return; }
 
-    var short = name.length > 12 ? name.slice(0, 11) + "…" : name;
+    var short = shortFor(name);
     var item = {
       // счётчик обязателен: две отметки в одну миллисекунду иначе получат один id
       id: "c" + Date.now().toString(36) + "-" + (++epSeq).toString(36),
