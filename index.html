@@ -229,6 +229,18 @@
     margin-bottom: 8px;
   }
 
+  .field .other-text {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px 11px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 0.9375rem;
+  }
+
   .field-label .name { font-size: 0.875rem; font-weight: 550; }
   .field-label .hint { font-size: 0.75rem; color: var(--ink-faint); }
 
@@ -300,6 +312,19 @@
     border-color: var(--accent);
     color: var(--accent);
   }
+  .chips.state button:hover { border-color: var(--accent); }
+  .chips.state button[aria-pressed="true"] {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .chips.state button.good[aria-pressed="true"] {
+    background: var(--surface-2);
+    border-color: var(--good);
+    color: var(--good);
+  }
+  .ep-main .dot.state { background: var(--accent); }
+  .ep-main .dot.todo { background: var(--rule-strong); }
   .chips button.bristol-c[aria-pressed="true"] { background: var(--mark-soft); border-color: var(--warn); color: var(--warn); }
   .chips button.bristol-n[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--good); color: var(--good); }
   .chips button.bristol-l[aria-pressed="true"] { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
@@ -368,6 +393,12 @@
   .sym-grid.state button.good .plus { background: var(--surface-2); color: var(--good); }
   .sym-grid.state button.good .n { color: var(--good); }
   .sym-grid.state button.good:hover { border-color: var(--good); background: none; }
+
+  .sym-grid.act button:hover { border-color: var(--good); background: var(--surface-2); }
+  .sym-grid.act button:active { background: var(--good); color: #fff; }
+  .sym-grid.act button .plus { background: var(--surface-2); color: var(--good); }
+  .sym-grid.act button .n { color: var(--good); }
+  .ep-main .dot.act { background: var(--good); }
 
   .grp-label {
     display: block;
@@ -706,6 +737,44 @@
     color: var(--ink-soft);
     line-height: 1.5;
   }
+
+  /* ---------- подтверждение внутри страницы (системный confirm блокируется во фреймах) ---------- */
+
+  .ask-wrap {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(21, 28, 34, .45);
+  }
+  .ask {
+    width: 100%;
+    max-width: 480px;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .ask p { margin: 0 0 14px; font-size: 0.9375rem; line-height: 1.45; }
+  .ask .row { display: flex; gap: 8px; }
+  .ask button {
+    flex: 1 1 0;
+    padding: 12px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--ink-soft);
+    font-family: var(--font-ui);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .ask button.ok { border-color: var(--bad); background: var(--bad); color: #fff; }
+  .ask button.ok.calm { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
 
   .toast {
     position: fixed;
@@ -1112,7 +1181,6 @@
         </div>
       </div>
     </section>
-
     <section class="block">
       <div class="block-head"><h2>Симптомы ЖКТ</h2><span class="tag">отмечайте сразу</span></div>
       <div class="block-body">
@@ -1120,14 +1188,6 @@
         <div class="ep-list" id="ep-list"></div>
       </div>
     </section>
-
-    <section class="block">
-      <div class="block-head"><h2>Самочувствие</h2><span class="tag">отмечайте сразу</span></div>
-      <div class="block-body">
-        <div class="sym-grid state" id="state-grid"></div>
-      </div>
-    </section>
-
     <section class="block">
       <div class="block-head"><h2>Приёмы пищи</h2><span class="tag">еда и перекусы</span></div>
       <div class="block-body">
@@ -1138,7 +1198,6 @@
         <datalist id="product-names"></datalist>
       </div>
     </section>
-
     <section class="block">
       <div class="block-head"><h2>Лекарства</h2><span class="tag">приёмы и пропуски</span></div>
       <div class="block-body">
@@ -1149,12 +1208,22 @@
         <datalist id="drug-names"></datalist>
       </div>
     </section>
-
     <section class="block">
-      <div class="block-head"><h2>Ночь и сон</h2><span class="tag">итог за ночь</span></div>
-      <div class="block-body" id="grp-sleep"></div>
+      <div class="block-head"><h2>Самочувствие</h2><span class="tag">4 плановые + свои</span></div>
+      <div class="block-body">
+        <button type="button" class="meal-add" id="check-add">
+          <span class="plus">+</span><span>Добавить отметку</span><span class="n" id="check-n"></span>
+        </button>
+        <div class="ep-list" id="check-list"></div>
+      </div>
     </section>
-
+    <section class="block">
+      <div class="block-head"><h2>Активность</h2><span class="tag">нажмите, когда начали</span></div>
+      <div class="block-body">
+        <div class="sym-grid act" id="act-grid"></div>
+        <div class="ep-list" id="act-list"></div>
+      </div>
+    </section>
     <section class="block">
       <div class="block-head"><h2>Стул</h2></div>
       <div class="block-body">
@@ -1167,7 +1236,10 @@
         <div class="ep-list" id="stool-list"></div>
       </div>
     </section>
-
+    <section class="block">
+      <div class="block-head"><h2>Ночь и сон</h2><span class="tag">итог за ночь</span></div>
+      <div class="block-body" id="grp-sleep"></div>
+    </section>
     <section class="block">
       <div class="block-head"><h2>День в целом</h2></div>
       <div class="block-body" id="grp-misc"></div>
@@ -1263,6 +1335,13 @@
           <input type="text" id="new-state" placeholder="Например: озноб" maxlength="28" aria-label="Название новой отметки самочувствия">
           <button type="button" id="btn-add-state">Добавить</button>
         </div>
+
+        <span class="grp-label">Активность</span>
+        <div id="act-editor"></div>
+        <div class="addsym">
+          <input type="text" id="new-act" placeholder="Например: йога" maxlength="28" aria-label="Название нового вида активности">
+          <button type="button" id="btn-add-act">Добавить</button>
+        </div>
       </div>
     </section>
 
@@ -1285,6 +1364,16 @@
   <button type="button" data-view="summary">Итоги</button>
   <button type="button" data-view="data">Данные</button>
 </nav>
+
+<div class="ask-wrap" id="ask" hidden>
+  <div class="ask" role="dialog" aria-modal="true" aria-labelledby="ask-text">
+    <p id="ask-text"></p>
+    <div class="row">
+      <button type="button" id="ask-no">Отмена</button>
+      <button type="button" class="ok" id="ask-ok"></button>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -1321,13 +1410,22 @@
   ];
 
   // второй набор отметок — не про ЖКТ, а про самочувствие в течение дня
+  // варианты для отметок самочувствия по времени; список правится на вкладке «Данные»
   var DEFAULT_STATE = [
-    { id: "weak",      label: "Обессиленность",     short: "Обессилена" },
-    { id: "sleepy",    label: "Сонливость днём",    short: "Сонливость" },
-    { id: "dizzy",     label: "Головокружение",     short: "Головокруж." },
-    { id: "palp",      label: "Сердцебиение",       short: "Сердцебиение" },
-    { id: "breath",    label: "Одышка при нагрузке", short: "Одышка" },
-    { id: "energy_up", label: "Прилив энергии",     short: "Прилив сил", good: true }
+    { id: "weak",      label: "Обессиленность", short: "Обессилена" },
+    { id: "sleepy",    label: "Сонливость",     short: "Сонливость" },
+    { id: "dizzy",     label: "Головокружение", short: "Головокруж." },
+    { id: "down",      label: "Подавленность",  short: "Подавлена" },
+    { id: "fog",       label: "Затуманенность", short: "Туман" },
+    { id: "energy_up", label: "Энергичность",   short: "Энергична", good: true },
+    { id: "clear",     label: "Ясность ума",    short: "Ясность", good: true }
+  ];
+
+  // виды активности; список тоже правится на вкладке «Данные»
+  var DEFAULT_ACT = [
+    { id: "walk",     label: "Ходьба",  short: "Ходьба" },
+    { id: "dance",    label: "Танцы",   short: "Танцы" },
+    { id: "exercise", label: "Зарядка", short: "Зарядка" }
   ];
 
   function withGroup(list, group) {
@@ -1338,18 +1436,41 @@
 
   var FIELDS = {
     sleep: [
-      { key: "sleepHours", type: "num", name: "Часов сна", hint: "всего за ночь", min: 0, max: 16, step: 0.5 },
+      { key: "bedTime",  type: "time", name: "Время отбоя", hint: "легла спать" },
+      { key: "wakeTime", type: "time", name: "Время пробуждения", hint: "встала" },
+      { key: "sleepHours", type: "num", name: "Часов сна", hint: "считается по времени, можно поправить", min: 0, max: 16, step: 0.5 },
+      { key: "fallAsleep", type: "choiceText", name: "Сколько засыпала", textKey: "fallAsleepText",
+        placeholder: "Например: около 40 мин", options: [
+        { v: "fast", l: "Сразу" }, { v: "15-30", l: "15–30 мин" }, { v: "30-60", l: "30–60 мин" },
+        { v: "gt60", l: "Больше часа" }, { v: "other", l: "Другое" }
+      ]},
+      { key: "wakeBy", type: "choice", name: "Проснулась", options: [
+        { v: "self", l: "Сама" }, { v: "alarm", l: "По будильнику" }
+      ]},
+      { key: "wakeCount", type: "choice", name: "Просыпалась ночью", hint: "сколько раз", options: [
+        { v: "0", l: "Нет" }, { v: "1", l: "1 раз" }, { v: "2", l: "2 раза" }, { v: "3+", l: "3 и больше" }
+      ]},
+      { key: "wakeReasons", type: "multiText", name: "Почему просыпалась", hint: "можно несколько",
+        textKey: "wakeReasonText", placeholder: "Что именно", options: [
+        { v: "pain", l: "Боль" }, { v: "toilet", l: "Туалет" }, { v: "noise", l: "Что-то разбудило" },
+        { v: "none", l: "Без причины" }, { v: "other", l: "Другое" }
+      ]},
       { key: "nightPain", type: "choice", name: "Ночная боль мешала уснуть", options: [
         { v: "no", l: "Нет" }, { v: "lt30", l: "До 30 мин" }, { v: "30-60", l: "30–60 мин" },
         { v: "1-2h", l: "1–2 часа" }, { v: "gt2h", l: "Больше 2 ч" }
       ]},
-      { key: "rested", type: "scale", name: "Выспалась", hint: "0 — разбита, 10 — отдохнула" }
+      { key: "rested", type: "scale", name: "Выспалась", hint: "0 — разбита, 10 — отдохнула" },
+      { key: "nap", type: "choiceNum", name: "Дневной сон", numKey: "napHours", min: 0.5, max: 8, step: 0.5, unit: "ч",
+        options: [{ v: "no", l: "Нет" }, { v: "yes", l: "Был", num: true }] }
     ],
     stool: [],
     misc: [
       { key: "period", type: "choice", name: "Менструация", hint: "кровотечение отмены на КОК", options: [
         { v: "start", l: "Первый день" }, { v: "yes", l: "Идёт" },
         { v: "spot", l: "Заканчивается, мазня" }, { v: "no", l: "Нет" }
+      ]},
+      { key: "pill", type: "choice", name: "Таблетка КОК", hint: "какая сегодня по блистеру", options: [
+        { v: "active", l: "Активная таблетка" }, { v: "placebo", l: "Пустышка" }
       ]},
       { key: "notes", type: "text", name: "Заметки", hint: "что необычного, стресс, поездки" }
     ]
@@ -1387,10 +1508,12 @@
   ];
 
   var state = { entries: {} };
-  var symptoms = withGroup(DEFAULT_SYMPTOMS, "gut").concat(withGroup(DEFAULT_STATE, "state"));
+  var symptoms = withGroup(DEFAULT_SYMPTOMS, "gut")
+    .concat(withGroup(DEFAULT_STATE, "state"))
+    .concat(withGroup(DEFAULT_ACT, "act"));
   var phases = DEFAULT_PHASES.map(function (p) { return { id: p.id, label: p.label }; });
 
-  var SYM_VERSION = 3;   // поднимается, когда в стандартный набор добавляются отметки
+  var SYM_VERSION = 5;   // поднимается, когда меняется стандартный набор отметок
   var meta = { lastBackupAt: null, changedAt: null, symV: SYM_VERSION, theme: "auto" };
   var draft = {};
   var currentDate = todayISO();
@@ -1450,7 +1573,7 @@
         short: String(s.short || s.label || s.id),
         attack: !!s.attack,
         good: !!s.good,
-        group: s.group === "state" ? "state" : "gut",
+        group: (s.group === "state" || s.group === "act") ? s.group : "gut",
         off: !!s.off,
         custom: !!s.custom
       });
@@ -1478,6 +1601,26 @@
         for (var i = 0; i < symptoms.length; i++) if (symptoms[i].attack) { at = i; break; }
         symptoms.splice(at, 0, s);   // новые симптомы ЖКТ встают перед «Приступом»
         have[s.id] = 1;
+      });
+    }
+    if (meta.symV < 4) {
+      // самочувствие стало отметками по времени с новым набором вариантов
+      withGroup(DEFAULT_STATE, "state").forEach(function (s) {
+        if (!have[s.id]) { symptoms.push(s); have[s.id] = 1; }
+      });
+      symptoms.forEach(function (s) {
+        if (s.id === "energy_up" && s.label === "Прилив энергии") { s.label = "Энергичность"; s.short = "Энергична"; }
+        if (s.id === "sleepy" && s.label === "Сонливость днём") { s.label = "Сонливость"; }
+      });
+      // сердцебиение и одышку из набора убрали — снимаем только те, по которым нет отметок
+      symptoms = symptoms.filter(function (s) {
+        return !((s.id === "palp" || s.id === "breath") && !usageCount(s.id));
+      });
+    }
+    if (meta.symV < 5) {
+      // появился блок «Активность» со своим набором
+      withGroup(DEFAULT_ACT, "act").forEach(function (s) {
+        if (!have[s.id]) { symptoms.push(s); have[s.id] = 1; }
       });
     }
     meta.symV = SYM_VERSION;
@@ -1569,6 +1712,25 @@
     return n;
   }
 
+  // Подтверждение внутри страницы. window.confirm не годится: во встроенном фрейме
+  // claude.ai браузер его блокирует и молча отвечает «отмена».
+  // calm — действие не разрушительное, кнопка не красная.
+  var askCb = null;
+  function ask(text, okLabel, cb, calm) {
+    askCb = cb || null;
+    document.getElementById("ask-text").textContent = text;
+    var ok = document.getElementById("ask-ok");
+    ok.textContent = okLabel;
+    ok.className = "ok" + (calm ? " calm" : "");
+    document.getElementById("ask").hidden = false;
+  }
+  function askClose(yes) {
+    document.getElementById("ask").hidden = true;
+    var cb = askCb;
+    askCb = null;
+    if (yes && cb) cb();
+  }
+
   var toastTimer;
   function toast(msg) {
     var t = document.getElementById("toast");
@@ -1586,7 +1748,7 @@
   function symLabel(id) { var s = symById(id); return s ? s.label : id; }
   function shortSym(id) { var s = symById(id); return s ? (s.short || s.label) : id; }
 
-  function groupOf(s) { return s.group === "state" ? "state" : "gut"; }
+  function groupOf(s) { return (s.group === "state" || s.group === "act") ? s.group : "gut"; }
 
   // симптомы, показываемые кнопками на вкладке «Запись»
   function activeSymptoms(group) {
@@ -1600,6 +1762,10 @@
     var used = {};
     sortedDates().forEach(function (d) {
       (state.entries[d].episodes || []).forEach(function (x) { used[x.sym] = 1; });
+      (state.entries[d].checks || []).forEach(function (c) {
+        (c.states || []).forEach(function (id) { used[id] = 1; });
+      });
+      (state.entries[d].acts || []).forEach(function (a) { used[a.kind] = 1; });
     });
     var out = symptoms.filter(function (s) { return !s.off || used[s.id]; });
     var known = {};
@@ -1656,11 +1822,13 @@
   }
 
   function renderSymGrid() {
-    fillGrid("sym-grid", "gut", "Все симптомы убраны — верните их на вкладке «Данные»");
-    fillGrid("state-grid", "state", "Отметки самочувствия убраны — верните их на вкладке «Данные»");
+    fillGrid("sym-grid", "gut", "Все симптомы убраны — верните их на вкладке «Данные»", addEpisode, function (id) {
+      return episodes().filter(function (e) { return e.sym === id; }).length;
+    });
   }
 
-  function fillGrid(hostId, group, emptyText) {
+  // сетка кнопок для группы отметок; onPick — что делать по нажатию, countOf — число на значке
+  function fillGrid(hostId, group, emptyText, onPick, countOf) {
     var host = document.getElementById(hostId);
     host.textContent = "";
     var list = activeSymptoms(group);
@@ -1675,10 +1843,10 @@
       b.appendChild(el("span", "plus", "+"));
       b.appendChild(el("span", "l", s.label));
       var n = el("span", "n");
-      var c = episodes().filter(function (e) { return e.sym === s.id; }).length;
+      var c = countOf(s.id);
       n.textContent = c ? String(c) : "";
       b.appendChild(n);
-      b.addEventListener("click", function () { addEpisode(s.id); });
+      b.addEventListener("click", function () { onPick(s.id); });
       host.appendChild(b);
     });
   }
@@ -2140,6 +2308,298 @@
     return edit;
   }
 
+  // ---------------- активность ----------------
+
+  var openAct = null;
+
+  function actsOf() {
+    if (!draft.acts) draft.acts = [];
+    return draft.acts;
+  }
+
+  // «Ходьба 40 мин — по парку»; lower — с маленькой буквы для ленты отчёта
+  function actText(a, lower) {
+    var s = symLabel(a.kind);
+    if (lower) s = s.toLowerCase();
+    if (typeof a.min === "number") s += " " + a.min + " мин";
+    var n = (a.note || "").trim().replace(/\n/g, " ");
+    return n ? s + " — " + n : s;
+  }
+
+  function addAct(kindId) {
+    var a = { id: "a" + Date.now() + "-" + (++epSeq), time: nowTime(), kind: kindId, min: null, note: "" };
+    actsOf().push(a);
+    openAct = a.id;
+    renderActs();
+    commit();
+    toast(symLabel(kindId) + " — " + a.time);
+  }
+
+  function renderActs() {
+    fillGrid("act-grid", "act", "Виды активности убраны — верните их на вкладке «Данные»", addAct, function (id) {
+      return actsOf().filter(function (a) { return a.kind === id; }).length;
+    });
+
+    var host = document.getElementById("act-list");
+    var list = actsOf().slice().sort(function (a, b) { return timeToMin(a.time) - timeToMin(b.time); });
+    host.textContent = "";
+    if (!list.length) {
+      host.appendChild(el("div", "ep-empty", "Пока ничего не отмечено. Нажмите вид активности, когда начали."));
+      return;
+    }
+    list.forEach(function (a) {
+      var row = el("div", "ep");
+      var main = el("button", "ep-main");
+      main.type = "button";
+      main.appendChild(el("span", "t", a.time));
+      main.appendChild(el("span", "dot act"));
+      main.appendChild(el("span", "w", actText(a)));
+      main.appendChild(el("span", "chev", openAct === a.id ? "▴" : "▾"));
+      main.addEventListener("click", function () {
+        openAct = (openAct === a.id) ? null : a.id;
+        renderActs();
+      });
+      row.appendChild(main);
+      if (openAct === a.id) row.appendChild(actEditor(a));
+      host.appendChild(row);
+    });
+  }
+
+  function actEditor(a) {
+    var edit = el("div", "ep-edit");
+
+    var tr = el("div", "ep-edit-row");
+    var lab = el("label", null, "Время");
+    lab.htmlFor = "at-" + a.id;
+    var ti = document.createElement("input");
+    ti.type = "time";
+    ti.id = "at-" + a.id;
+    ti.value = a.time;
+    ti.addEventListener("change", function () {
+      if (ti.value) { a.time = ti.value; renderActs(); commit(); }
+    });
+    tr.appendChild(lab);
+    tr.appendChild(ti);
+    edit.appendChild(tr);
+
+    edit.appendChild(el("span", "lbl", "Сколько минут"));
+    var box = el("div", "qty-amount");
+    var inp = document.createElement("input");
+    inp.type = "number";
+    inp.min = 0; inp.max = 600; inp.step = 5;
+    inp.inputMode = "numeric";
+    inp.value = typeof a.min === "number" ? a.min : "";
+    inp.setAttribute("aria-label", "Минут активности");
+    inp.addEventListener("input", function () {
+      a.min = inp.value === "" ? null : Number(inp.value);
+      commitSoon();
+    });
+    box.appendChild(inp);
+    box.appendChild(el("span", "unit", "мин"));
+    edit.appendChild(box);
+
+    var noteLbl = el("span", "lbl", "Заметка");
+    noteLbl.style.marginTop = "10px";
+    edit.appendChild(noteLbl);
+    var note = document.createElement("textarea");
+    note.className = "what";
+    note.value = a.note || "";
+    note.placeholder = "Где, как прошло, что заметила";
+    note.setAttribute("aria-label", "Заметка к активности");
+    note.addEventListener("input", function () { a.note = note.value; commitSoon(); });
+    edit.appendChild(note);
+
+    var del = el("button", "ep-del", "Удалить эту запись");
+    del.type = "button";
+    del.addEventListener("click", function () {
+      draft.acts = actsOf().filter(function (x) { return x.id !== a.id; });
+      openAct = null;
+      renderActs();
+      commit();
+    });
+    edit.appendChild(del);
+
+    return edit;
+  }
+
+  // минуты за день: по одному виду (id) или по всем (null)
+  function actMinutes(e, id) {
+    var n = 0;
+    (e.acts || []).forEach(function (a) {
+      if ((id == null || a.kind === id) && typeof a.min === "number") n += a.min;
+    });
+    return n;
+  }
+  function actCount(e, id) {
+    return (e.acts || []).filter(function (a) { return a.kind === id; }).length;
+  }
+  function avgActMin(list, id) {
+    if (!list.length) return null;
+    var s = 0;
+    list.forEach(function (e) { s += actMinutes(e, id); });
+    return s / list.length;
+  }
+
+  // ---------------- самочувствие: отметки по времени ----------------
+
+  var CHECK_SLOTS = ["12:00", "15:00", "18:00", "21:00"];
+  var openCheck = null;
+
+  function checksOf() {
+    if (!draft.checks) draft.checks = [];
+    return draft.checks;
+  }
+  function checkStates(c) {
+    if (!c.states) c.states = [];
+    return c.states;
+  }
+
+  // четыре плановые отметки есть у каждого дня; время у них можно сдвинуть
+  function seedChecks() {
+    var list = checksOf();
+    CHECK_SLOTS.forEach(function (t) {
+      if (!list.some(function (c) { return c.slot === t; })) {
+        list.push({ id: "k" + t.replace(":", ""), time: t, slot: t, states: [] });
+      }
+    });
+  }
+
+  function checkNote(c) { return (c.note || "").trim(); }
+
+  // в отметке что-то есть: выбранные состояния или заметка
+  function checkFilled(c) { return checkStates(c).length > 0 || !!checkNote(c); }
+
+  // плановая отметка, к которой не прикасались
+  function pristineCheck(c) {
+    return !!c.slot && !checkFilled(c) && c.time === c.slot;
+  }
+
+  function stateLabels(c) {
+    return checkStates(c).map(function (id) { return symLabel(id).toLowerCase(); }).join(", ");
+  }
+
+  // состояния плюс заметка одной строкой — для списка и отчёта
+  function checkText(c) {
+    var s = stateLabels(c), n = checkNote(c).replace(/\n/g, " ");
+    if (s && n) return s + " — " + n;
+    return s || n;
+  }
+
+  function addCheck() {
+    var c = { id: "k" + Date.now() + "-" + (++epSeq), time: nowTime(), slot: null, states: [] };
+    checksOf().push(c);
+    openCheck = c.id;
+    renderChecks();
+    commit();
+    toast("Отметка самочувствия — " + c.time);
+  }
+
+  function renderChecks() {
+    var host = document.getElementById("check-list");
+    var list = checksOf().slice().sort(function (a, b) { return timeToMin(a.time) - timeToMin(b.time); });
+    var filled = list.filter(checkFilled).length;
+    document.getElementById("check-n").textContent = filled ? filled + " / " + list.length : "";
+    host.textContent = "";
+
+    list.forEach(function (c) {
+      var has = checkFilled(c);
+      var row = el("div", "ep");
+      var main = el("button", "ep-main");
+      main.type = "button";
+      main.appendChild(el("span", "t", c.time));
+      main.appendChild(el("span", "dot state" + (has ? "" : " todo")));
+      main.appendChild(el("span", "w" + (has ? "" : " none"),
+        has ? checkText(c) : (c.slot ? "ещё не отмечено" : "ничего не выбрано")));
+      if (c.slot) main.appendChild(el("span", "q", "план"));
+      main.appendChild(el("span", "chev", openCheck === c.id ? "▴" : "▾"));
+      main.addEventListener("click", function () {
+        openCheck = (openCheck === c.id) ? null : c.id;
+        renderChecks();
+      });
+      row.appendChild(main);
+      if (openCheck === c.id) row.appendChild(checkEditor(c));
+      host.appendChild(row);
+    });
+  }
+
+  function checkEditor(c) {
+    var edit = el("div", "ep-edit");
+
+    var tr = el("div", "ep-edit-row");
+    var lab = el("label", null, "Время");
+    lab.htmlFor = "kt-" + c.id;
+    var ti = document.createElement("input");
+    ti.type = "time";
+    ti.id = "kt-" + c.id;
+    ti.value = c.time;
+    ti.addEventListener("change", function () {
+      if (ti.value) { c.time = ti.value; renderChecks(); commit(); }
+    });
+    tr.appendChild(lab);
+    tr.appendChild(ti);
+    edit.appendChild(tr);
+
+    edit.appendChild(el("span", "lbl", "Как себя чувствую — можно несколько"));
+    var chips = el("div", "chips state");
+    chips.setAttribute("role", "group");
+    chips.setAttribute("aria-label", "Самочувствие");
+    // скрытые варианты показываем, только если они уже выбраны в этой отметке
+    var opts = symptoms.filter(function (s) {
+      return groupOf(s) === "state" && (!s.off || checkStates(c).indexOf(s.id) >= 0);
+    });
+    opts.forEach(function (s) {
+      var b = el("button", s.good ? "good" : null, s.label);
+      b.type = "button";
+      b.setAttribute("aria-pressed", checkStates(c).indexOf(s.id) >= 0 ? "true" : "false");
+      b.addEventListener("click", function () {
+        var arr = checkStates(c), i = arr.indexOf(s.id);
+        if (i >= 0) arr.splice(i, 1); else arr.push(s.id);
+        renderChecks();
+        commit();
+      });
+      chips.appendChild(b);
+    });
+    if (!opts.length) chips.appendChild(el("div", "ep-empty", "Варианты убраны — верните их на вкладке «Данные»"));
+    edit.appendChild(chips);
+
+    var noteLbl = el("span", "lbl", "Чем занята и с чем связано");
+    noteLbl.style.marginTop = "10px";
+    edit.appendChild(noteLbl);
+    var note = document.createElement("textarea");
+    note.className = "what";
+    note.value = c.note || "";
+    note.placeholder = "Чем занята, с чем связано: после еды, недосып, стресс, нагрузка";
+    note.setAttribute("aria-label", "Заметка к отметке самочувствия");
+    note.addEventListener("input", function () { c.note = note.value; commitSoon(); });
+    edit.appendChild(note);
+
+    if (!c.slot) {
+      var del = el("button", "ep-del", "Удалить эту отметку");
+      del.type = "button";
+      del.addEventListener("click", function () {
+        draft.checks = checksOf().filter(function (x) { return x.id !== c.id; });
+        openCheck = null;
+        renderChecks();
+        commit();
+      });
+      edit.appendChild(del);
+    }
+    return edit;
+  }
+
+  // статистика по самочувствию: отметки по времени плюс старые эпизоды из прежней версии
+  function stateCount(e, id) {
+    var n = epCount(e, id);
+    (e.checks || []).forEach(function (c) { if ((c.states || []).indexOf(id) >= 0) n++; });
+    return n;
+  }
+  function avgState(list, id) {
+    if (!list.length) return null;
+    var s = 0;
+    list.forEach(function (e) { s += stateCount(e, id); });
+    return s / list.length;
+  }
+
   // ---------------- стул ----------------
 
   var openStool = null;
@@ -2537,6 +2997,7 @@
     inp.setAttribute("aria-label", f.name);
     inp.addEventListener("input", function () {
       if (inp.value === "") delete draft[f.key]; else draft[f.key] = Number(inp.value);
+      if (f.key === "sleepHours") delete draft.sleepAuto;   // ввели руками — больше не пересчитываем
       commitSoon();
     });
     wrap.appendChild(inp);
@@ -2559,12 +3020,179 @@
     return wrap;
   }
 
+  // время отбоя / подъёма; по двум временам считает часы сна
+  function buildTime(f) {
+    var wrap = el("div", "field");
+    wrap.appendChild(head(f));
+    var inp = document.createElement("input");
+    inp.type = "time";
+    inp.setAttribute("aria-label", f.name);
+    inp.addEventListener("change", function () {
+      if (inp.value === "") delete draft[f.key]; else draft[f.key] = inp.value;
+      autoSleepHours();
+      commit();
+    });
+    wrap.appendChild(inp);
+    wrap._sync = function () { inp.value = draft[f.key] || ""; };
+    return wrap;
+  }
+
+  // Часы сна из отбоя и подъёма. Введённое руками не трогаем; пересчитываем
+  // только то, что сами и посчитали (draft.sleepAuto).
+  function autoSleepHours() {
+    if (!draft.bedTime || !draft.wakeTime) return;
+    if (draft.sleepHours != null && !draft.sleepAuto) return;
+    var mins = (timeToMin(draft.wakeTime) - timeToMin(draft.bedTime) + 1440) % 1440;
+    if (!mins) return;
+    draft.sleepHours = Math.round(mins / 30) / 2;
+    draft.sleepAuto = true;
+    syncers.forEach(function (s) { s(); });
+    toast("Часов сна: " + fmt(draft.sleepHours, 1) + " — по времени отбоя и подъёма");
+  }
+
+  function otherInput(f) {
+    var txt = document.createElement("input");
+    txt.type = "text";
+    txt.className = "other-text";
+    txt.placeholder = f.placeholder || "Своими словами";
+    txt.setAttribute("aria-label", f.name + " — своими словами");
+    txt.addEventListener("input", function () {
+      if (txt.value.trim() === "") delete draft[f.textKey]; else draft[f.textKey] = txt.value;
+      commitSoon();
+    });
+    return txt;
+  }
+
+  // один вариант из списка, «Другое» раскрывает текстовое поле
+  function buildChoiceText(f) {
+    var wrap = el("div", "field");
+    wrap.appendChild(head(f));
+    var row = el("div", "chips");
+    row.setAttribute("role", "group");
+    row.setAttribute("aria-label", f.name);
+    f.options.forEach(function (o) {
+      var b = el("button", null, o.l);
+      b.type = "button";
+      b.dataset.v = o.v;
+      b.setAttribute("aria-pressed", "false");
+      b.addEventListener("click", function () {
+        if (draft[f.key] === o.v) delete draft[f.key]; else draft[f.key] = o.v;
+        if (draft[f.key] !== "other") delete draft[f.textKey];
+        sync();
+        commit();
+      });
+      row.appendChild(b);
+    });
+    wrap.appendChild(row);
+    var txt = otherInput(f);
+    wrap.appendChild(txt);
+    function sync() {
+      var v = draft[f.key];
+      var btns = row.querySelectorAll("button");
+      for (var i = 0; i < btns.length; i++) btns[i].setAttribute("aria-pressed", btns[i].dataset.v === v ? "true" : "false");
+      txt.hidden = (v !== "other");
+      txt.value = draft[f.textKey] || "";
+    }
+    wrap._sync = sync;
+    return wrap;
+  }
+
+  // один вариант из списка; у варианта с num: true раскрывается числовое поле
+  function buildChoiceNum(f) {
+    var wrap = el("div", "field");
+    wrap.appendChild(head(f));
+    var row = el("div", "chips");
+    row.setAttribute("role", "group");
+    row.setAttribute("aria-label", f.name);
+    var numOpt = null;
+    f.options.forEach(function (o) {
+      if (o.num) numOpt = o;
+      var b = el("button", null, o.l);
+      b.type = "button";
+      b.dataset.v = o.v;
+      b.setAttribute("aria-pressed", "false");
+      b.addEventListener("click", function () {
+        if (draft[f.key] === o.v) delete draft[f.key]; else draft[f.key] = o.v;
+        if (!o.num || draft[f.key] !== o.v) delete draft[f.numKey];
+        sync();
+        commit();
+      });
+      row.appendChild(b);
+    });
+    wrap.appendChild(row);
+
+    var box = el("div", "qty-amount");
+    var inp = document.createElement("input");
+    inp.type = "number";
+    inp.min = f.min; inp.max = f.max; inp.step = f.step;
+    inp.inputMode = "decimal";
+    inp.setAttribute("aria-label", f.name + ", " + f.unit);
+    inp.addEventListener("input", function () {
+      if (inp.value === "") delete draft[f.numKey]; else draft[f.numKey] = Number(inp.value);
+      commitSoon();
+    });
+    box.appendChild(inp);
+    box.appendChild(el("span", "unit", f.unit));
+    wrap.appendChild(box);
+
+    function sync() {
+      var v = draft[f.key];
+      var btns = row.querySelectorAll("button");
+      for (var i = 0; i < btns.length; i++) btns[i].setAttribute("aria-pressed", btns[i].dataset.v === v ? "true" : "false");
+      box.hidden = !(numOpt && v === numOpt.v);
+      inp.value = draft[f.numKey] == null ? "" : draft[f.numKey];
+    }
+    wrap._sync = sync;
+    return wrap;
+  }
+
+  // несколько вариантов сразу, «Другое» раскрывает текстовое поле
+  function buildMultiText(f) {
+    var wrap = el("div", "field");
+    wrap.appendChild(head(f));
+    var row = el("div", "chips");
+    row.setAttribute("role", "group");
+    row.setAttribute("aria-label", f.name);
+    f.options.forEach(function (o) {
+      var b = el("button", null, o.l);
+      b.type = "button";
+      b.dataset.v = o.v;
+      b.setAttribute("aria-pressed", "false");
+      b.addEventListener("click", function () {
+        var cur = (draft[f.key] || []).slice();
+        var i = cur.indexOf(o.v);
+        if (i >= 0) cur.splice(i, 1); else cur.push(o.v);
+        if (cur.length) draft[f.key] = cur; else delete draft[f.key];
+        if (cur.indexOf("other") < 0) delete draft[f.textKey];
+        sync();
+        commit();
+      });
+      row.appendChild(b);
+    });
+    wrap.appendChild(row);
+    var txt = otherInput(f);
+    wrap.appendChild(txt);
+    function sync() {
+      var cur = draft[f.key] || [];
+      var btns = row.querySelectorAll("button");
+      for (var i = 0; i < btns.length; i++) btns[i].setAttribute("aria-pressed", cur.indexOf(btns[i].dataset.v) >= 0 ? "true" : "false");
+      txt.hidden = cur.indexOf("other") < 0;
+      txt.value = draft[f.textKey] || "";
+    }
+    wrap._sync = sync;
+    return wrap;
+  }
+
   function buildGroup(containerId, list) {
     var c = document.getElementById(containerId);
     list.forEach(function (f) {
       var node;
       if (f.type === "scale") node = buildScale(f);
       else if (f.type === "choice") node = buildChoice(f);
+      else if (f.type === "choiceText") node = buildChoiceText(f);
+      else if (f.type === "choiceNum") node = buildChoiceNum(f);
+      else if (f.type === "multiText") node = buildMultiText(f);
+      else if (f.type === "time") node = buildTime(f);
       else if (f.type === "bristol") node = buildBristol(f);
       else if (f.type === "num") node = buildNum(f);
       else node = buildText(f);
@@ -2617,13 +3245,19 @@
     if (!draft.meals) draft.meals = [];
     if (!draft.meds) draft.meds = [];
     if (!draft.stools) draft.stools = [];
+    if (!draft.acts) draft.acts = [];
+    seedChecks();
     openEpisode = null;
     openMeal = null;
     openMed = null;
     openStool = null;
+    openCheck = null;
+    openAct = null;
     syncers.forEach(function (f) { f(); });
     syncPhase();
     renderEpisodes();
+    renderChecks();
+    renderActs();
     renderMeals();
     renderMeds();
     renderStools();
@@ -2640,9 +3274,12 @@
     if ((draft.meals || []).length) return false;
     if ((draft.meds || []).length) return false;
     if ((draft.stools || []).length) return false;
+    if ((draft.checks || []).some(function (c) { return !pristineCheck(c); })) return false;
+    if ((draft.acts || []).length) return false;
     return !Object.keys(draft).some(function (k) {
-      return k !== "phase" && k !== "episodes" && k !== "meals" && k !== "meds" && k !== "stools" &&
-             draft[k] != null && draft[k] !== "";
+      if (k === "phase" || k === "episodes" || k === "meals" || k === "meds" || k === "stools" || k === "checks" || k === "acts" || k === "sleepAuto") return false;
+      if (Array.isArray(draft[k])) return draft[k].length > 0;
+      return draft[k] != null && draft[k] !== "";
     });
   }
 
@@ -2680,10 +3317,17 @@
       return;
     }
 
-    state.entries[currentDate] = JSON.parse(JSON.stringify(draft));
+    state.entries[currentDate] = snapshotDraft();
     meta.changedAt = new Date().toISOString();
     if (persist()) setAutosave("saved");
     afterChange();
+  }
+
+  // в запись не кладём плановые отметки самочувствия, к которым не прикасались
+  function snapshotDraft() {
+    var copy = JSON.parse(JSON.stringify(draft));
+    if (copy.checks) copy.checks = copy.checks.filter(function (c) { return !pristineCheck(c); });
+    return copy;
   }
 
   function afterChange() {
@@ -2740,6 +3384,58 @@
     if (e.stools && e.stools.length) return e.stools.length;
     if (e.stools) return null;
     return typeof e.stoolCount === "number" ? e.stoolCount : null;
+  }
+
+  // ---- сон ----
+
+  function wakeCountNum(e) {
+    var map = { "0": 0, "1": 1, "2": 2, "3+": 3 };
+    return e.wakeCount != null && map[e.wakeCount] != null ? map[e.wakeCount] : null;
+  }
+  function avgWake(list) {
+    var vals = list.map(wakeCountNum).filter(function (v) { return typeof v === "number"; });
+    if (!vals.length) return null;
+    return vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
+  }
+  function withField(list, key) { return list.filter(function (e) { return e[key] != null; }); }
+  function slowNights(list) {
+    return list.filter(function (e) { return e.fallAsleep === "30-60" || e.fallAsleep === "gt60"; }).length;
+  }
+  function alarmNights(list) {
+    return list.filter(function (e) { return e.wakeBy === "alarm"; }).length;
+  }
+  function fallAsleepText(e) {
+    if (!e.fallAsleep) return "";
+    if (e.fallAsleep === "other") return (e.fallAsleepText || "другое").trim();
+    return optLabel("fallAsleep", e.fallAsleep).toLowerCase();
+  }
+  function wakeReasonsText(e) {
+    var list = e.wakeReasons || [];
+    if (!list.length) return "";
+    return list.map(function (v) {
+      if (v === "other") return (e.wakeReasonText || "другое").trim();
+      return optLabel("wakeReasons", v).toLowerCase();
+    }).join(", ");
+  }
+  // дневной сон: «нет» — это честный ноль, «был» без часов — не знаем сколько
+  function napHoursOf(e) {
+    if (e.nap === "no") return 0;
+    if (e.nap === "yes" && typeof e.napHours === "number") return e.napHours;
+    return null;
+  }
+  function avgNap(list) {
+    var vals = list.map(napHoursOf).filter(function (v) { return typeof v === "number"; });
+    if (!vals.length) return null;
+    return vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
+  }
+  function napText(e) {
+    var h = napHoursOf(e);
+    if (h === 0) return "нет";
+    if (h != null) return fmt(h, 1) + " ч";
+    return e.nap === "yes" ? "был" : "";
+  }
+  function hasSleepDetails(e) {
+    return e.bedTime || e.wakeTime || e.fallAsleep || e.wakeBy || e.wakeCount != null || (e.wakeReasons || []).length || e.nap;
   }
 
   function countNoStool(list) {
@@ -2802,6 +3498,10 @@
 
   function countPeriod(list) {
     return list.filter(function (e) { return e.period && e.period !== "no"; }).length;
+  }
+
+  function countPlacebo(list) {
+    return list.filter(function (e) { return e.pill === "placebo"; }).length;
   }
 
   function periodShort(v) {
@@ -2893,7 +3593,14 @@
       var taken = (e.meds || []).filter(function (x) { return !x.missed; }).length;
       var skipped = (e.meds || []).filter(function (x) { return x.missed; }).length;
       add("лек", taken || null);
+      var filledChecks = (e.checks || []).filter(checkFilled).length;
+      add("самоч", filledChecks || null);
+      var mins = actMinutes(e, null);
+      if (mins) add("актив", mins + "м");
+      else if ((e.acts || []).length) add("актив", (e.acts || []).length);
       add("сон", e.sleepHours != null ? fmt(e.sleepHours, 1) + "ч" : null);
+      if (wakeCountNum(e)) add("просып", optLabel("wakeCount", e.wakeCount).toLowerCase());
+      if (napHoursOf(e)) add("днём", fmt(napHoursOf(e), 1) + "ч");
       if (e.noStool) add("стул", "не было");
       else {
         var sc = stoolCountOf(e);
@@ -2903,6 +3610,7 @@
         }
       }
       if (e.period && e.period !== "no") add("менстр", periodShort(e.period));
+      if (e.pill === "placebo") add("табл", "пустышка");
       if (skipped) m.appendChild(el("span", "flag", "пропуск" + (skipped > 1 ? " ×" + skipped : "")));
       var atk = epCount(e, "attack");
       if (atk) m.appendChild(el("span", "flag", "приступ" + (atk > 1 ? " ×" + atk : "")));
@@ -2961,6 +3669,9 @@
     dataRow("Приёмов лекарств в день", function (l) { return fmt(avgMeds(l)); });
     dataRow("Пропусков лекарств", function (l) { return String(missedMeds(l)); });
     dataRow("Дней с менструацией", function (l) { return countPeriod(l) + " / " + l.length; });
+    dataRow("Дней на пустышках", function (l) {
+      var w = withField(l, "pill"); return w.length ? countPlacebo(w) + " / " + w.length : "—";
+    });
 
     groupRow("Симптомы ЖКТ, эпизодов в день");
     inGroup(statSymptoms(), "gut").forEach(function (s) {
@@ -2971,9 +3682,9 @@
 
     var stateList = inGroup(statSymptoms(), "state");
     if (stateList.length) {
-      groupRow("Самочувствие, эпизодов в день");
+      groupRow("Самочувствие, отметок в день");
       stateList.forEach(function (s) {
-        dataRow(s.label, function (l) { return fmt(avgEp(l, s.id)); });
+        dataRow(s.label, function (l) { return fmt(avgState(l, s.id)); });
       });
     }
 
@@ -2990,6 +3701,15 @@
       });
     }
 
+    var actList = inGroup(statSymptoms(), "act");
+    if (actList.length) {
+      groupRow("Активность, минут в день");
+      dataRow("Всего", function (l) { return fmt(avgActMin(l, null)); });
+      actList.forEach(function (s) {
+        dataRow(s.label, function (l) { return fmt(avgActMin(l, s.id)); });
+      });
+    }
+
     groupRow("Стул");
     dataRow("Раз в день", function (l) { return fmt(avgStools(l)); });
     dataRow("Дней без стула", function (l) { return countNoStool(l) + " / " + l.length; });
@@ -3001,6 +3721,14 @@
     DAILY_METRICS.forEach(function (m) {
       dataRow(m.label, function (l) { return fmt(avg(l, m.key)); });
     });
+    dataRow("Пробуждений за ночь", function (l) { return fmt(avgWake(l)); });
+    dataRow("Засыпала дольше 30 мин, ночей", function (l) {
+      var w = withField(l, "fallAsleep"); return w.length ? slowNights(w) + " / " + w.length : "—";
+    });
+    dataRow("По будильнику, ночей", function (l) {
+      var w = withField(l, "wakeBy"); return w.length ? alarmNights(w) + " / " + w.length : "—";
+    });
+    dataRow("Дневной сон, ч в среднем", function (l) { return fmt(avgNap(l)); });
 
     t.appendChild(tb);
     wrap.appendChild(t);
@@ -3070,8 +3798,10 @@
       });
     });
     var weak = statSymptoms().filter(function (s) { return s.id === "weak"; })[0];
-    if (weak && totalEp(all, "weak")) {
-      series.push({ label: "Обессиленность, эпизодов", invert: false, get: function (e) { return epCount(e, "weak"); } });
+    var weakTotal = 0;
+    all.forEach(function (e) { weakTotal += stateCount(e, "weak"); });
+    if (weak && weakTotal) {
+      series.push({ label: "Обессиленность, отметок", invert: false, get: function (e) { return stateCount(e, "weak"); } });
     }
     series.push(
       { label: "Выспалась", invert: true, get: function (e) { return typeof e.rested === "number" ? e.rested : null; } }
@@ -3206,6 +3936,9 @@
     out.push("| Дней с менструацией | " + active.map(function (p) {
       var l = entriesByPhase(p.id); return countPeriod(l) + "/" + l.length;
     }).join(" | ") + " |");
+    out.push("| Дней на пустышках | " + active.map(function (p) {
+      var w = withField(entriesByPhase(p.id), "pill"); return w.length ? countPlacebo(w) + "/" + w.length : "—";
+    }).join(" | ") + " |");
 
     out.push("| **Симптомы ЖКТ, эпизодов в день** | " + active.map(function () { return ""; }).join(" | ") + " |");
     inGroup(statSymptoms(), "gut").forEach(function (s) {
@@ -3216,9 +3949,18 @@
 
     var stateRows = inGroup(statSymptoms(), "state");
     if (stateRows.length) {
-      out.push("| **Самочувствие, эпизодов в день** | " + active.map(function () { return ""; }).join(" | ") + " |");
+      out.push("| **Самочувствие, отметок в день** | " + active.map(function () { return ""; }).join(" | ") + " |");
       stateRows.forEach(function (s) {
-        out.push("| " + s.label + " | " + active.map(function (p) { return fmt(avgEp(entriesByPhase(p.id), s.id)); }).join(" | ") + " |");
+        out.push("| " + s.label + " | " + active.map(function (p) { return fmt(avgState(entriesByPhase(p.id), s.id)); }).join(" | ") + " |");
+      });
+    }
+
+    var actRows = inGroup(statSymptoms(), "act");
+    if (actRows.length) {
+      out.push("| **Активность, минут в день** | " + active.map(function () { return ""; }).join(" | ") + " |");
+      out.push("| Всего | " + active.map(function (p) { return fmt(avgActMin(entriesByPhase(p.id), null)); }).join(" | ") + " |");
+      actRows.forEach(function (s) {
+        out.push("| " + s.label + " | " + active.map(function (p) { return fmt(avgActMin(entriesByPhase(p.id), s.id)); }).join(" | ") + " |");
       });
     }
 
@@ -3237,10 +3979,42 @@
     DAILY_METRICS.forEach(function (m) {
       out.push("| " + m.label + " | " + active.map(function (p) { return fmt(avg(entriesByPhase(p.id), m.key)); }).join(" | ") + " |");
     });
+    out.push("| Пробуждений за ночь | " + active.map(function (p) { return fmt(avgWake(entriesByPhase(p.id))); }).join(" | ") + " |");
+    out.push("| Засыпала дольше 30 мин, ночей | " + active.map(function (p) {
+      var w = withField(entriesByPhase(p.id), "fallAsleep"); return w.length ? slowNights(w) + "/" + w.length : "—";
+    }).join(" | ") + " |");
+    out.push("| По будильнику, ночей | " + active.map(function (p) {
+      var w = withField(entriesByPhase(p.id), "wakeBy"); return w.length ? alarmNights(w) + "/" + w.length : "—";
+    }).join(" | ") + " |");
+    out.push("| Дневной сон, ч в среднем | " + active.map(function (p) { return fmt(avgNap(entriesByPhase(p.id))); }).join(" | ") + " |");
+
+    var withSleep = dates.filter(function (d) { return hasSleepDetails(state.entries[d]); });
+    if (withSleep.length) {
+      out.push("");
+      out.push("## Сон по ночам");
+      out.push("");
+      out.push("| Дата | Отбой | Подъём | Часов | Засыпала | Проснулась | Пробуждений | Причины | Днём |");
+      out.push("|---|---|---|---|---|---|---|---|---|");
+      withSleep.forEach(function (d) {
+        var e = state.entries[d];
+        out.push("| " + [
+          fullDate(d),
+          e.bedTime || "",
+          e.wakeTime || "",
+          e.sleepHours == null ? "" : fmt(e.sleepHours, 1),
+          fallAsleepText(e),
+          e.wakeBy ? optLabel("wakeBy", e.wakeBy).toLowerCase() : "",
+          e.wakeCount != null ? optLabel("wakeCount", e.wakeCount).toLowerCase() : "",
+          wakeReasonsText(e).replace(/\|/g, "/"),
+          napText(e)
+        ].join(" | ") + " |");
+      });
+    }
 
     var withFood = dates.filter(function (d) {
       var e = state.entries[d];
-      return (e.meals || []).length || (e.meds || []).length || (e.stools || []).length || e.noStool;
+      return (e.meals || []).length || (e.meds || []).length || (e.stools || []).length || e.noStool ||
+             (e.checks || []).some(checkFilled) || (e.acts || []).length;
     });
     if (withFood.length) {
       out.push("");
@@ -3252,6 +4026,7 @@
         var e = state.entries[d];
         var head = fullDate(d) + " — " + phaseLabel(e.phase || basePhase()).toLowerCase();
         if (e.period && e.period !== "no") head += " · менструация: " + optLabel("period", e.period).toLowerCase();
+        if (e.pill) head += " · " + (e.pill === "placebo" ? "пустышка" : "активная таблетка");
         if (e.noStool) head += " · стула не было";
         out.push("### " + head);
         var items = [];
@@ -3266,6 +4041,12 @@
         });
         (e.stools || []).forEach(function (s) {
           items.push({ t: s.time, s: "стул: " + stoolText(s) });
+        });
+        (e.checks || []).forEach(function (c) {
+          if (checkFilled(c)) items.push({ t: c.time, s: "самочувствие: " + checkText(c) });
+        });
+        (e.acts || []).forEach(function (a) {
+          items.push({ t: a.time, s: "активность: " + actText(a, true) });
         });
         (e.episodes || []).forEach(function (x) {
           items.push({ t: x.time, s: shortSym(x.sym) + (x.int != null ? " " + x.int + "/10" : "") });
@@ -3482,15 +4263,16 @@
       }
       var incoming = Object.keys(data.entries).length;
       var have = sortedDates().length;
-      var msg;
-      if (have) {
-        msg = "В файле " + incoming + " дн., сейчас в дневнике " + have + " дн.\n\n" +
-              "OK — объединить (при совпадении дат останется версия из файла).\n" +
-              "Отмена — ничего не менять.";
-        if (!confirm(msg)) return;
-      } else if (!confirm("Загрузить " + incoming + " дн. из файла?")) {
-        return;
-      }
+      var msg = have
+        ? "В файле " + incoming + " дн., в дневнике сейчас " + have + " дн. Объединить? При совпадении дат останется версия из файла."
+        : "Загрузить " + incoming + " дн. из файла?";
+      ask(msg, have ? "Объединить" : "Загрузить", function () { applyImport(data, incoming, have); }, true);
+    };
+    reader.onerror = function () { toast("Не удалось прочитать файл"); };
+    reader.readAsText(file);
+  }
+
+  function applyImport(data, incoming, have) {
       Object.keys(data.entries).forEach(function (d) {
         var e = data.entries[d];
         if (e && typeof e === "object") state.entries[d] = e;
@@ -3515,9 +4297,6 @@
       renderSymEditor();
       renderBackupStatus();
       toast("Восстановлено: " + incoming + " дн.");
-    };
-    reader.onerror = function () { toast("Не удалось прочитать файл"); };
-    reader.readAsText(file);
   }
 
   // --- напоминание ---
@@ -3650,13 +4429,17 @@
       ib("×", "Удалить этап", "del", function () {
         // считаем заново: дни могли добавиться уже после отрисовки списка
         var n = phaseUsage(p.id);
-        if (n) { toast("За этим этапом " + n + " дн. — его можно только переименовать"); return; }
+        if (n) {
+          ask("За этапом «" + p.label + "» записано " + n + " дн. Удалить его нельзя — дни останутся без этапа. Название можно поменять прямо в строке.", "Понятно", null, true);
+          return;
+        }
         if (phases.length < 2) { toast("Нужен хотя бы один этап"); return; }
-        if (!confirm("Удалить этап «" + p.label + "»?")) return;
-        phases = phases.filter(function (x) { return x.id !== p.id; });
-        if (phaseIndex(lastPhase) < 0) lastPhase = basePhase();
-        if (draft.phase === p.id) { draft.phase = lastPhase; commit(); }
-        savePhases();
+        ask("Удалить этап «" + p.label + "»?", "Удалить", function () {
+          phases = phases.filter(function (x) { return x.id !== p.id; });
+          if (phaseIndex(lastPhase) < 0) lastPhase = basePhase();
+          if (draft.phase === p.id) { draft.phase = lastPhase; commit(); }
+          savePhases();
+        });
       });
 
       host.appendChild(row);
@@ -3679,9 +4462,12 @@
 
   // ---------------- редактор списка симптомов ----------------
 
+  // сколько раз отметка встречается в записях: эпизоды плюс отметки самочувствия по времени
   function usageCount(id) {
     var n = 0;
-    sortedDates().forEach(function (d) { n += epCount(state.entries[d], id); });
+    sortedDates().forEach(function (d) {
+      n += stateCount(state.entries[d], id) + actCount(state.entries[d], id);
+    });
     return n;
   }
 
@@ -3697,6 +4483,7 @@
     persist();
     renderSymEditor();
     renderEpisodes();
+    renderActs();
   }
 
   // меняем местами с соседом внутри своей группы
@@ -3718,6 +4505,7 @@
   function renderSymEditor() {
     fillEditor("sym-editor", "gut");
     fillEditor("state-editor", "state");
+    fillEditor("act-editor", "act");
   }
 
   function fillEditor(hostId, group) {
@@ -3775,13 +4563,16 @@
         ib("×", "Приступ удалить нельзя", "del", null, true);
       } else {
         ib("×", "Удалить совсем", "del", function () {
-          if (used) {
-            toast("По нему есть " + used + " отм. — можно только убрать из списка");
+          var n = usageCount(s.id);   // считаем заново: отметки могли добавиться после отрисовки
+          if (n) {
+            ask("По «" + s.label + "» уже есть " + n + " отм. Удалить нельзя — пропадут данные. Убрать из формы? Прошлые отметки останутся в отчёте.",
+              "Убрать из формы", function () { s.off = true; saveSymptoms(); }, true);
             return;
           }
-          if (!confirm("Удалить «" + s.label + "» из списка?")) return;
-          symptoms = symptoms.filter(function (x) { return x.id !== s.id; });
-          saveSymptoms();
+          ask("Удалить «" + s.label + "» из списка?", "Удалить", function () {
+            symptoms = symptoms.filter(function (x) { return x.id !== s.id; });
+            saveSymptoms();
+          });
         });
       }
 
@@ -3893,6 +4684,7 @@
   document.getElementById("med-add").addEventListener("click", addMed);
   document.getElementById("stool-add").addEventListener("click", addStool);
   document.getElementById("stool-none").addEventListener("click", toggleNoStool);
+  document.getElementById("check-add").addEventListener("click", addCheck);
   document.getElementById("btn-copy").addEventListener("click", copyReport);
   document.getElementById("btn-json").addEventListener("click", downloadJSON);
   document.getElementById("banner-btn").addEventListener("click", downloadJSON);
@@ -3921,18 +4713,28 @@
   document.getElementById("new-state").addEventListener("keydown", function (ev) {
     if (ev.key === "Enter") { ev.preventDefault(); addSymptom("new-state", "state"); }
   });
+  document.getElementById("btn-add-act").addEventListener("click", function () { addSymptom("new-act", "act"); });
+  document.getElementById("new-act").addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter") { ev.preventDefault(); addSymptom("new-act", "act"); }
+  });
 
   document.getElementById("btn-clear").addEventListener("click", function () {
     if (!sortedDates().length) { toast("Записей и так нет"); return; }
-    if (!confirm("Удалить все записи безвозвратно?")) return;
-    if (!confirm("Точно? Сначала лучше сохранить копию в файл. Удалить всё?")) return;
-    state.entries = {};
-    meta.changedAt = new Date().toISOString();
-    persist();
-    loadDate(currentDate);
-    renderAll();
-    renderBackupStatus();
-    toast("Все записи удалены");
+    ask("Удалить все записи безвозвратно? Сначала лучше сохранить копию в файл.", "Удалить всё", function () {
+      state.entries = {};
+      meta.changedAt = new Date().toISOString();
+      persist();
+      loadDate(currentDate);
+      renderAll();
+      renderBackupStatus();
+      toast("Все записи удалены");
+    });
+  });
+
+  document.getElementById("ask-ok").addEventListener("click", function () { askClose(true); });
+  document.getElementById("ask-no").addEventListener("click", function () { askClose(false); });
+  document.getElementById("ask").addEventListener("click", function (ev) {
+    if (ev.target === ev.currentTarget) askClose(false);   // тап по затемнению — отмена
   });
 
   // черновик уже сохранён, но добиваем отложенные правки при уходе со страницы
