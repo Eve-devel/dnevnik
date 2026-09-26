@@ -1,5 +1,5 @@
 // Собрано автоматически, правьте build.js
-var CACHE = "dnevnik-33b70d75";
+var CACHE = "dnevnik-26d1e8f0";
 var ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",
   "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"

@@ -2846,12 +2846,12 @@
     name.addEventListener("input", function () { m.drug = name.value; commitSoon(); });
     edit.appendChild(name);
 
-    edit.appendChild(el("span", "lbl", "Доза"));
+    edit.appendChild(el("span", "lbl", "Доза / Комментарий"));
     var dose = document.createElement("input");
     dose.type = "text";
     dose.value = m.dose || "";
-    dose.placeholder = "Например: 1 таблетка, 250 мг";
-    dose.setAttribute("aria-label", "Доза");
+    dose.placeholder = "Например: 250 мг; или почему приняла — от боли, от изжоги";
+    dose.setAttribute("aria-label", "Доза или комментарий");
     dose.addEventListener("input", function () { m.dose = dose.value; commitSoon(); });
     edit.appendChild(dose);
 
